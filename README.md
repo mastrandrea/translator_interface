@@ -7,7 +7,9 @@ Conversion of a string with event variables described in a base format to specif
 
 ## Status
 
-Base example working. Implementation of full fledge tests is in progress.
+Main functionalities and base examples are implemented.
+Implementation of full fledge tests is in progress.
+
 
 ## Base format
 
@@ -31,8 +33,15 @@ Example conversion from Base format to Target format:
 ## Strategy
 
 The data format conversion is implemented through 2 python classes:
- - translator.py       class responsible for the parsing of the expressions in the Base format
- - dictionary calss    (e.g. interfaceDictionary.py) class implementing the naming of the Base format features in the Target format, and the specific composition rules for the {object, index, feature} elements in the Target format (e.g. (e1) for NANOAOD)
+ - translator.py
+   - class responsible for the parsing of the expressions in the Base format
+   - recursive analysis of the string components
+   - objects searched among the ones defined in the dictionary
+   - features checked for corresponding object after identification
+   
+ - dictionary calss
+   - (e.g. interfaceDictionary.py) class implementing the naming of the Base format features in the Target format, and the specific composition rules for the {object, index, feature} elements in the Target format (e.g. (e1) for NANOAOD)
+   - features can be eventually added to the dictionary at run-time
 
 The interface for a specific target data format can be realized re-implementing just the dictionary class (i.e. a specific dictionary for each target data format).
 
