@@ -54,6 +54,16 @@ class testInterface:
         return (var_type in self.typesWithIndex)
 
 
+    def var_with_features(self, var_name):
+        vT = self.get_type(var_name)
+        return self.type_with_features(vT)
+
+
+    def var_with_index(self, var_name):
+        vT = self.get_type(var_name)
+        return self.type_with_index(vT)
+
+
     def has_this_feature(self, var_name, feature_name):
         vT = self.get_type(var_name)
         return (feature_name in self.dictionaries_dict[vT][var_name])
@@ -131,32 +141,32 @@ class testInterface:
 
         # Object variables (no index, feature)
         self.Obj1_dict = {}
-        self.Obj1_dict["VAR_NAME"] = "OBJ1"
-        self.Obj1_dict["x1"] = "X1"
-        self.Obj1_dict["y1"] = "Y2"
+        self.Obj1_dict["Obj1"] = "OBJ1"
+        self.Obj1_dict["x1"]   = "X1"
+        self.Obj1_dict["y1"]   = "Y2"
 
         self.OBJECTs_dict["Obj1"] = self.Obj1_dict
 
         # Collection variables (index, feature)
         self.Col1_dict = {}
-        self.Col1_dict["VAR_NAME"] = "COL1"
-        self.Col1_dict["pt"]  = "PT"
-        self.Col1_dict["eta"] = "ETA"
-        self.Col1_dict["phi"] = "PHI"
-        self.Col1_dict["a"]   = "A"
-        self.Col1_dict["a_b"] = "A_B"
+        self.Col1_dict["Col1"] = "COL1"
+        self.Col1_dict["pt"]   = "PT"
+        self.Col1_dict["eta"]  = "ETA"
+        self.Col1_dict["phi"]  = "PHI"
+        self.Col1_dict["a"]    = "A"
+        self.Col1_dict["a_b"]  = "A_B"
 
         self.Col2_dict = {}
-        self.Col2_dict["VAR_NAME"] = "COL2"
-        self.Col2_dict["pt"]  = "PT"
-        self.Col2_dict["eta"] = "ETA"
-        self.Col2_dict["phi"] = "PHI"
+        self.Col2_dict["Col2"] = "COL2"
+        self.Col2_dict["pt"]   = "PT"
+        self.Col2_dict["eta"]  = "ETA"
+        self.Col2_dict["phi"]  = "PHI"
 
         self.Col3_dict = {}
-        self.Col3_dict["VAR_NAME"] = "Col3"
-        self.Col3_dict["pt"]  = "pt"
-        self.Col3_dict["eta"] = "eta"
-        self.Col3_dict["phi"] = "phi"
+        self.Col3_dict["Col3"] = "Col3"
+        self.Col3_dict["pt"]   = "pt"
+        self.Col3_dict["eta"]  = "eta"
+        self.Col3_dict["phi"]  = "phi"
 
         self.COLLECTIONs_dict["Col1"] = self.Col1_dict
         self.COLLECTIONs_dict["Col2"] = self.Col2_dict
@@ -181,7 +191,8 @@ class testInterface:
         if not typeVar in self.typesWithFeature:
             convString = self.dictionaries_dict[typeVar][sVar]
         else:
-            convString =      self.dictionaries_dict[typeVar][sVar]["VAR_NAME"]
+            #            convString =      self.dictionaries_dict[typeVar][sVar]["VAR_NAME"]
+            convString =      self.dictionaries_dict[typeVar][sVar][sVar]
             convString += '_'+self.dictionaries_dict[typeVar][sVar][sFeat]
 
         if typeVar in self.typesWithIndex:

@@ -2,22 +2,19 @@
 class translator:
     def __init__(self, interface = "NONE", name = "translator"):
         self.name = name
+        if interface == "NONE" :
+            print("[",self.name,"] ERROR -", " Interface object not set! ")
+            return
         self.tI = interface
         print("[",self.name,"] translator object created, with interface ",self.tI.name)
         print(self.tI)
 
 
-    #    def set_interface(self, interface):
-    #        self.tI = interface
-    #        print("> translator.set_interface called")
-    #        print(self.tI)
-
-
     #---#  Utility for error reporting
 
-    def report_error(self, inputString, error_text):
+    def report_error(self, error_text, inputString = "NONE"):
         print("[",self.name,"] ERROR -", error_text)
-        print("[",self.name,"] +-->>  ", inputString)        
+        if inputString != "NONE" : print("[",self.name,"] +-->>  ", inputString)        
         return "__TRANSLATION_ERROR__"
 
 
@@ -106,7 +103,7 @@ class translator:
         t1, t1_pos = self.get_token(targetString[1:])
 
         if t1_pos != 0:
-            self.report_error(targetString, "Wrong-formed feature filed  "+t1)
+            self.report_error("Wrong-formed feature filed  "+t1, targetString)
 
         if t1 != "":
             result = t1
@@ -158,7 +155,7 @@ class translator:
 
         if tempIndex == "NONE":
             if self.tI.type_with_index(varType):
-                return self.report_error(inputString, "Index field expected after  "+varName)
+                return self.report_error("Index field expected after  "+varName, inputString)
         else:
             string_shift += (len(tempIndex)+2)
 
@@ -174,20 +171,20 @@ class translator:
         if varFeature == "NONE":
 
             if self.tI.type_with_features(varType):
-                return self.report_error(inputString, "Feature missing in the input string for variable  "+varName)
+                return self.report_error("Feature missing in the input string for variable  "+varName, inputString)
 
         else:
             if self.tI.type_with_features(varType):
 
                 ### Check if the feature found is present in the dictionary of the variable
                 if not self.tI.has_this_feature(varName, varFeature):
-                    return self.report_error(inputString, "Feature   "+varFeature+"   not in the dictionary for variable   "+varName)
+                    return self.report_error("Feature   "+varFeature+"   not in the dictionary for variable   "+varName, inputString)
 
                 string_shift += (len(varFeature)+1)
 
             else:
                 # Feature present for wrong variable type (scalar or vector)
-                return self.report_error(inputString, "Feature   "+varFeature+"   not expected for variable   "+varName)
+                return self.report_error("Feature   "+varFeature+"   not expected for variable   "+varName, inputString)
                 
 
         ### Select the footer - Recursive application

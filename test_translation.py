@@ -43,9 +43,6 @@ tI.configureInterface()
 
 print("")
 
-#tX = translator()
-#tX.set_interface(tI)
-
 tX = translator(tI)
 
 print("------------>>>>>>> variables_dict")
