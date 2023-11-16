@@ -9,6 +9,8 @@
 ##
 ##
 
+import json
+
 class testInterface:
     def __init__(self, t1 = "testInterface"):
         self.name = t1
@@ -26,8 +28,8 @@ class testInterface:
         self.dictionaries_dict = {}
         self.variables_dict    = {}
 
-        self.__define_dictionaries__()
-        self.__build_derived_dictionaries__()
+        self.define_dictionaries()
+        self.build_derived_dictionaries()
 
 
     def __str__(self):
@@ -76,7 +78,7 @@ class testInterface:
 
     #---#  Utilities for dictionaries
 
-    def __build_derived_dictionaries__(self):
+    def build_derived_dictionaries(self):
 
         self.dictionaries_dict["scalar"]     = self.SCALARs_dict
         self.dictionaries_dict["vector"]     = self.VECTORs_dict
@@ -103,7 +105,7 @@ class testInterface:
         return {}
 
 
-    def __print_dict(self, d1):
+    def print_dict(self, d1):
         for v in d1:
             print(v.ljust(20), "-->", d1[v])
         return
@@ -118,17 +120,22 @@ class testInterface:
         else:
             _d = self.dictionary_for(_name)
 
-        self.__print_dict(_d)
+        self.print_dict(_d)
 
         return
 
+
+
+    def dump_dictionary(self, outFileName):
+        with open(outFileName, "w") as file:
+            json.dump(self.dictionaries_dict, file)
 
 
 
 
     ########### Dictionaries definition
 
-    def __define_dictionaries__(self):
+    def define_dictionaries(self):
 
         # Scalar variables (no index, no variables)
         self.SCALARs_dict["scalar1"]  = "SCALAR1"

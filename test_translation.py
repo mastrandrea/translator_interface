@@ -157,3 +157,5 @@ print(tX.tI.dictionary_for("Col3"))
 #
 #    stringShift += (t1_pos + len(t1))
 #    print(t1+";  ", t1_pos, "  ", len(t1))
+
+tX.tI.dump_dictionary("test.json")

@@ -187,9 +187,11 @@ class translator:
                 return self.report_error("Feature   "+varFeature+"   not expected for variable   "+varName, inputString)
                 
 
+
         ### Select the footer - Recursive application
 
         sFooter = self.translate_string(inputString[string_shift:])
+
 
 
         ###  Build the translated string using the method specific of the loaded interface
