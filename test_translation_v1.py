@@ -12,30 +12,30 @@ from translator import translator
 
 print("")
 
-tI  = testInterface('int_test_1', 'db.json')
+tI  = testInterface('int_test_1')
+#tI2 = testInterface()
 
 
 print(tI)
-print("Interface name = ",tI.name)
+print("[",tI.name,"]",tI.COLLECTIONs_dict)
+
 print("")
 
-print("Print  Col1")
-tI.print_dictionary("Col1")
-print("Print  Col2")
-tI.print_dictionary("Col2")
-
 ### Eventual additions
-print("--------->>>>> Eventual additions to the db ")
-tI.add_feature("Col2", "abc", "aBc")
-tI.add_feature("Col1", "a_b_c_d", "A_B_C_D")
+tI.COLLECTIONs_dict["Col2"]["abc"] = "aBc"
+#tI.OBJs_dict["Obj2"]["alpha"] = "ALPHA"
+tI.COLLECTIONs_dict["Col1"]["a_b_c_d"] = "A_B_C_D"
 
+#print("[",tI.name,"]",tI.COLLECTIONs_dict)
+#print("[",tI2.name,"]",tI2.COLLECTIONs_dict)
 
-print("Print  Col1")
-tI.print_dictionary("Col1")
-print("Print  Col2")
-tI.print_dictionary("Col2")
+print("")
 
-
+### Check of the dictionaries 
+for col in tI.COLLECTIONs_dict:
+    print(col)
+    for feat in tI.COLLECTIONs_dict[col]:
+        print(col, feat, "-->", (tI.COLLECTIONs_dict[col])[feat])
 
 print("")
 
@@ -45,7 +45,13 @@ print("")
 
 tX = translator(tI)
 
-tI.print_dictionary("all")
+print("------------>>>>>>> variables_dict")
+print(tI.variables_dict)
+        
+print("------------>>>>>>> dictionaries_dict")
+print(tI.dictionaries_dict)
+
+
 
 print("")
 print("***")
@@ -155,10 +161,4 @@ print(tX.tI.dictionary_for("Col3"))
 #    stringShift += (t1_pos + len(t1))
 #    print(t1+";  ", t1_pos, "  ", len(t1))
 
-#tX.tI.dump_dictionary("test.json")
-
-
-print("scalar     format : ", tI.scalar_target_format)
-print("vector     format : ", tI.vector_target_format)
-print("object     format : ", tI.object_target_format)
-print("collection format : ", tI.collection_target_format)
+tX.tI.dump_dictionary("test.json")
