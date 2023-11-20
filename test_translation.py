@@ -12,11 +12,10 @@ from translator import translator
 
 print("")
 
-tI  = testInterface('int_test_1', 'db.json')
-
+tI  = testInterface('', 'db_2.json')
 
 print(tI)
-print("Interface name = ",tI.name)
+print("Interface name = ",tI.name())
 print("")
 
 print("Print  Col1")
@@ -158,7 +157,7 @@ print(tX.tI.dictionary_for("Col3"))
 #tX.tI.dump_dictionary("test.json")
 
 
-print("scalar     format : ", tI.scalar_target_format)
-print("vector     format : ", tI.vector_target_format)
-print("object     format : ", tI.object_target_format)
-print("collection format : ", tI.collection_target_format)
+print("scalar     format : ", tI.DB["target_formats"]["scalar"])
+print("vector     format : ", tI.DB["target_formats"]["vector"])
+print("object     format : ", tI.DB["target_formats"]["object"])
+print("collection format : ", tI.DB["target_formats"]["collection"])

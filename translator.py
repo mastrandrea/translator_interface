@@ -6,7 +6,7 @@ class translator:
             print("[",self.name,"] ERROR -", " Interface object not set! ")
             return
         self.tI = interface
-        print("[",self.name,"] translator object created, with interface ",self.tI.name)
+        print("[",self.name,"] translator object created, with interface ",self.tI.name())
         print(self.tI)
 
 

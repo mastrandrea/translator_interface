@@ -15,9 +15,7 @@
 import json
 
 class testInterface:
-    def __init__(self, interfaceName = "testInterface", db_file = ""):
-        self.name = interfaceName
-        print("[",self.name,"] testInterface object created")
+    def __init__(self, interfaceName = "", db_file = ""):
 
         self.scalar_type     = "scalar"
         self.vector_type     = "vector"
@@ -29,48 +27,61 @@ class testInterface:
         self.typesWithIndex    = (                  self.vector_type,                   self.collection_type)
         self.typesWithFeature  = (                                    self.object_type, self.collection_type)
 
+        self.DB = {}
+        self.DB["interface_info"] = {}
+        self.DB["target_formats"] = {}
+        self.DB["vars"]           = {}
 
-        #        self.scalar_target_format     = "VARIABLE"
-        #        self.vector_target_format     = "VARIABLE[INDEX]"
-        #        self.object_target_format     = "VARIABLE_FEATURE"
-        #        self.collection_target_format = "VARIABLE_FEATURE[INDEX]"
-        self.scalar_target_format     = "NOT_SET"
-        self.vector_target_format     = "NOT_SET"
-        self.object_target_format     = "NOT_SET"
-        self.collection_target_format = "NOT_SET"
+        self.DB["interface_info"]["name"]     = ""
+        self.DB["interface_info"]["comments"] = ""
 
-
-        self.vars_DB = {}
+        for t in self.types:   self.DB["target_formats"][t] = "NOT_SET"
 
         if db_file != "":     self.load_DB(db_file)
 
 
+        if interfaceName != "":
+            if interfaceName != self.DB["interface_info"]["name"]:
+                print("Interface renamed :  ", self.DB["interface_info"]["name"], "  ->  ", interfaceName)
+            self.DB["interface_info"]["name"] = interfaceName
+
+        print("[",self.DB["interface_info"]["name"],"] testInterface object created")
+
+
+        
     def __str__(self):
-        return "[ "+self.name+" ] Interface class for test format input files"
+        return "[ "+self.DB["interface_info"]["name"]+" ] Interface class for test format input files \n"+self.DB["interface_info"]["comments"]
+
+
+    def name(self):         return self.DB["interface_info"]["name"]
+    def comments(self):     return self.DB["interface_info"]["comments"]
+
+    def set_comments(self, comment_text):
+        self.DB["interface_info"]["comments"] = comment_text
 
 
     # Placeholder for input-format-specific configurations
     def configureInterface(self):
-        print("[",self.name,"] Placeholder for input-format-specific configurations")
+        print("[",self.DB["interface_info"]["name"],"] Placeholder for input-format-specific configurations")
 
 
 
     #---#  Utilities for variables
 
-    def is_defined(self, var_name):        return (var_name in self.vars_DB)
+    def is_defined(self, var_name):        return (var_name in self.DB["vars"])
 
     def get_type(self, var_name):
         if self.is_defined(var_name):
-            return self.vars_DB[var_name][self._TYPE_key]
+            return self.DB["vars"][var_name][self._TYPE_key]
         else:
             return "NONE"
 
-    def type_with_features(self, var_type):        return (var_type in self.typesWithFeature)
-    def type_with_index(   self, var_type):        return (var_type in self.typesWithIndex)
+    def type_with_features(self, var_type):                  return (var_type in self.typesWithFeature)
+    def type_with_index(   self, var_type):                  return (var_type in self.typesWithIndex)
 
     def var_with_features( self, var_name):                  return self.type_with_features(self.get_type(var_name))
     def var_with_index(    self, var_name):                  return self.type_with_index(   self.get_type(var_name))
-    def has_this_feature(  self, var_name, feature_name):    return (feature_name in self.vars_DB[var_name])
+    def has_this_feature(  self, var_name, feature_name):    return (feature_name in self.DB["vars"][var_name])
 
 
 
@@ -79,7 +90,7 @@ class testInterface:
     #---#  Build
 
     def _add_variable(self, var_origin, var_target, var_type):
-        self.vars_DB[var_origin]   = {var_origin:var_target, "TYPE":var_type}
+        self.DB["vars"][var_origin]   = {var_origin:var_target, "TYPE":var_type}
 
     def add_scalar(    self, var_origin, var_target): self._add_variable(var_origin, var_target, self.scalar_type) 
     def add_vector(    self, var_origin, var_target): self._add_variable(var_origin, var_target, self.vector_type) 
@@ -91,7 +102,7 @@ class testInterface:
             print(" ERROR  -  variable ", var_origin, "  not defined!")
             return
         else:
-            self.vars_DB[var_origin][feat_origin] = feat_target
+            self.DB["vars"][var_origin][feat_origin] = feat_target
 
 
 
@@ -105,16 +116,16 @@ class testInterface:
 
 
     def set_scalar_target_format(self, tFormat):
-        if self.check_target_format(tFormat, ["VARIABLE"]):                       self.scalar_target_format =     tFormat
+        if self.check_target_format(tFormat, ["VARIABLE"]):                       self.DB["target_formats"]["scalar"]     = tFormat
 
     def set_vector_target_format(self, tFormat):
-        if self.check_target_format(tFormat, ["VARIABLE","INDEX"]):               self.vector_target_format =     tFormat
+        if self.check_target_format(tFormat, ["VARIABLE","INDEX"]):               self.DB["target_formats"]["vector"]     = tFormat
 
     def set_object_target_format(self, tFormat):
-        if self.check_target_format(tFormat, ["VARIABLE","FEATURE"]):             self.object_target_format =     tFormat
+        if self.check_target_format(tFormat, ["VARIABLE","FEATURE"]):             self.DB["target_formats"]["object"]     = tFormat
 
     def set_collection_target_format(self, tFormat):
-        if self.check_target_format(tFormat, ["VARIABLE","INDEX","FEATURE"]):     self.collection_target_format = tFormat
+        if self.check_target_format(tFormat, ["VARIABLE","INDEX","FEATURE"]):     self.DB["target_formats"]["collection"] = tFormat
 
         
 
@@ -124,42 +135,63 @@ class testInterface:
 
     def save_DB(self, dbFileName):
         with open(dbFileName, "w") as file:
-            json.dump(self.vars_DB, file)
+            json.dump(self.DB, file)
 
 
     def load_DB(self, dbFileName):
         with open(dbFileName) as file:
-            self.vars_DB = json.load(file)
+            self.DB = json.load(file)
         self.print_summary()
+
 
 
     #---#  Print & Summary
 
+    def print_interface_info(self):
+        print("** Interface info")
+        for ii in self.DB["interface_info"]:
+            print(ii.ljust(20), "-->  ", self.DB["interface_info"][ii].ljust(20))
+
+
+    def print_target_formats(self):
+        print("** Target Formats")
+        for tf in self.DB["target_formats"]:
+            print(tf.ljust(20), "-->  ", self.DB["target_formats"][tf].ljust(20))
+
+
     def list_variables(self, var_type="all"):
-        for v in self.vars_DB:
+        for v in self.DB["vars"]:
             if (var_type == "all") or (self.get_type(v) == var_type):
-                print(v.ljust(20), "-->  ", self.vars_DB[v][v].ljust(20), " (", self.vars_DB[v][self._TYPE_key], ")")
+                print(v.ljust(20), "-->  ", self.DB["vars"][v][v].ljust(20), " (", self.DB["vars"][v][self._TYPE_key], ")")
+
+
+    def print_variables_summary(self):
+        print("** Variables Summary")
+        counter = {self.scalar_type:0, self.vector_type:0, self.object_type:0, self.collection_type:0, "NONE":0}
+        for v in self.DB["vars"]:    counter[self.get_type(v)] += 1
+        for t in counter:         print(t.ljust(20), "-->   entries: ", counter[t])
+
 
 
     def print_summary(self):
-        counter = {self.scalar_type:0, self.vector_type:0, self.object_type:0, self.collection_type:0, "NONE":0}
-        for v in self.vars_DB:    counter[self.get_type(v)] += 1
-        for t in counter:         print(t.ljust(20), "-->  entries:  ", counter[t])
+        self.print_interface_info()
+        self.print_target_formats()
+        self.print_variables_summary()
 
 
     def dictionary_for(self, _var):
         
         # Variable type requested
-        if _var == "all":      return self.vars_DB
+        if _var == "all":      return self.DB["vars"]
 
         if _var in self.types:
             _dict = {}
-            for v in self.vars_DB:
-                if (self.get_type(v) == _var):     _dict[v] = self.vars_DB[v]
+            for v in self.DB["vars"]:
+                if (self.get_type(v) == _var):     _dict[v] = self.DB["vars"][v]
             return _dict
                     
         # Variable name requested
-        if self.is_defined(_var):    return self.vars_DB[_var]
+        if self.is_defined(_var):    return self.DB["vars"][_var]
 
         print(" ERROR  -  variable ", _var, "  not defined!")
         return {}
@@ -174,97 +206,26 @@ class testInterface:
 
 
 
-
-
-
-    ########### Dictionaries definition
-
-    def define_DB(self):
-
-        # Scalar variables (no index, no variables)
-        self.vars_DB["scalar1"]   = {"scalar1":"SCALAR1",   "TYPE":self.scalar_type}
-        self.vars_DB["scalar_2"]  = {"scalar_2":"SCALAR_2", "TYPE":self.scalar_type}
-        self.vars_DB["s"]         = {"s":"S",               "TYPE":self.scalar_type}
-
-
-        # Vector variables (index, no feature)
-        self.vars_DB["vector1"]   = {"vector1":"VECTOR1",   "TYPE":self.vector_type}
-        self.vars_DB["vector_2"]  = {"vector_2":"VECTOR_2", "TYPE":self.vector_type}
-
-
-        # Object variables (no index, feature)
-        self.vars_DB["Obj1"] = {"Obj1":"OBJ1",  "TYPE":self.object_type}
-        self.vars_DB["Obj1"]["x1"] = "X1"
-        self.vars_DB["Obj1"]["y1"] = "Y2"
-
-
-        # Collection variables (index, feature)
-        self.vars_DB["Col1"] = {"Col1":"COL1",  "TYPE":self.collection_type}
-        self.vars_DB["Col1"]["pt"]   = "PT"
-        self.vars_DB["Col1"]["eta"]  = "ETA"
-        self.vars_DB["Col1"]["phi"]  = "PHI"
-        self.vars_DB["Col1"]["a"]    = "A"
-        self.vars_DB["Col1"]["a_b"]  = "A_B"
-
-        self.vars_DB["Col2"] = {"Col2":"COL2",  "TYPE":self.collection_type}
-        self.vars_DB["Col2"]["pt"]   = "PT"
-        self.vars_DB["Col2"]["eta"]  = "ETA"
-        self.vars_DB["Col2"]["phi"]  = "PHI"
-
-        self.vars_DB["Col3"] = {"Col3":"Col3",  "TYPE":self.collection_type}
-        self.vars_DB["Col3"]["pt"]   = "pt"
-        self.vars_DB["Col3"]["eta"]  = "eta"
-        self.vars_DB["Col3"]["phi"]  = "phi"
-
-
-    # Target:   name             -> NAME
-    # Target:   name[index]      -> NAME[index]
-    # Target:   name.feat        -> NAME_FEAT
-    # Target:   name[index].feat -> NAME_FEAT[index]
-
-    #
-    # Could be implemented in 2 stages: translate to target dictionary + build
-    #
-
-    #    def convert(self, sVar, sInd, sFeat):
-    #
-    #        typeVar = self.get_type(sVar)
-    #
-    #        #        convString = ""
-    #        #
-    #        #        if not typeVar in self.typesWithFeature:
-    #        #            convString = self.vars_DB[sVar][sVar]
-    #        #        else:
-    #        #            convString =      self.vars_DB[sVar][sVar]
-    #        #            convString += '_'+self.vars_DB[sVar][sFeat]
-    #
-    #        convString = self.vars_DB[sVar][sVar]
-    #
-    #        if self.type_with_features(typeVar):    convString += '_'+self.vars_DB[sVar][sFeat]
-    #        if self.type_with_index(   typeVar):    convString += '['+sInd+']'
-    #
-    #        return convString
-
-
+    ## Convertion from source to target format ###################################################################
 
     def convert(self, sVar, sInd, sFeat):
 
-        #        print("convert : ", sVar, "[", sInd, "]", sFeat)
-
         typeVar = self.get_type(sVar)
 
-        tVar = self.vars_DB[sVar][sVar]
+        tVar = self.DB["vars"][sVar][sVar]
         if sInd  != "NONE":    tInd  = sInd
-        if sFeat != "NONE":    tFeat = self.vars_DB[sVar][sFeat]
+        if sFeat != "NONE":    tFeat = self.DB["vars"][sVar][sFeat]
         #        if self.type_with_index(   typeVar):    tInd  = sInd
-        #        if self.type_with_features(typeVar):    tFeat = self.vars_DB[sVar][sFeat]
+        #        if self.type_with_features(typeVar):    tFeat = self.DB["vars"][sVar][sFeat]
 
-        if   typeVar == self.scalar_type :        return (self.scalar_target_format).replace("VARIABLE", tVar)
-        elif typeVar == self.vector_type :        return (self.vector_target_format).replace("VARIABLE", tVar).replace("INDEX",   tInd)
-        elif typeVar == self.object_type :        return (self.object_target_format).replace("VARIABLE", tVar).replace("FEATURE", tFeat)
-        elif typeVar == self.collection_type :    return (self.collection_target_format).replace("VARIABLE", tVar).replace("INDEX",   tInd).replace("FEATURE", tFeat)
+        if   typeVar == self.scalar_type :        return (self.DB["target_formats"]["scalar"].replace("VARIABLE", tVar))
+        elif typeVar == self.vector_type :        return (self.DB["target_formats"]["vector"].replace("VARIABLE", tVar).replace("INDEX",   tInd))
+        elif typeVar == self.object_type :        return (self.DB["target_formats"]["object"].replace("VARIABLE", tVar).replace("FEATURE", tFeat))
+        elif typeVar == self.collection_type :    return (self.DB["target_formats"]["collection"].replace("VARIABLE", tVar).replace("INDEX",   tInd).replace("FEATURE", tFeat))
 
         return "__TRANSLATION_TYPE_ERROR__"
+
+
 
 
 # Built-in hash() function in Pyton is "salted" by a random mumber (unique per execution)
