@@ -1,17 +1,18 @@
 
 # Interface description
-from interfaceDictionary import testInterface
+from interfaceDictionary import interfaceDictionary
 
-t = testInterface("i1_test")
+dictionaryFileName = "db.json"
+
+t = interfaceDictionary("i1_test")
 t.set_comments("Test interface - comment here")
 
-t.print_summary()
+#t.print_summary()
 
-
-t.set_scalar_target_format("VARIABLE")
-t.set_vector_target_format("VARIABLE[INDEX]")
-t.set_object_target_format("VARIABLE_FEATURE")
-t.set_collection_target_format("VARIABLE_FEATURE[INDEX]")
+t.set_target_format("scalar",     "VARIABLE")
+t.set_target_format("vector",     "VARIABLE[INDEX]")
+t.set_target_format("object",     "VARIABLE_FEATURE")
+t.set_target_format("collection", "VARIABLE_FEATURE[INDEX]")
 
 
 
@@ -50,7 +51,10 @@ t.add_feature("Col3", "pt",  "pt")
 t.add_feature("Col3", "eta", "eta")
 t.add_feature("Col3", "phi", "phi")
 
-t.save_DB("db_2.json")
+t.save_DB(dictionaryFileName)
 
+print("\n ---------------------------- print_dictionary ")
 t.print_dictionary()
+
+print("\n ---------------------------- print_summary ")
 t.print_summary()

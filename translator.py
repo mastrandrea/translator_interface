@@ -1,21 +1,26 @@
+from interfaceDictionary import interfaceDictionary
+
 
 class translator:
-    def __init__(self, interface = "NONE", name = "translator"):
+    def __init__(self, interfaceDictionaryFile = "NONE", name = "translator"):
         self.name = name
-        if interface == "NONE" :
-            print("[",self.name,"] ERROR -", " Interface object not set! ")
+        if interfaceDictionaryFile == "NONE" :
+            print("[",self.name,"] ERROR -", " Interface Dictionary File not set! ")
             return
-        self.tI = interface
-        print("[",self.name,"] translator object created, with interface ",self.tI.name())
-        print(self.tI)
 
+        self.ID = interfaceDictionary("", interfaceDictionaryFile)
+        print("[",self.name,"] translator object created, with interface ",self.ID.name())
+        #print(self.ID)
+        self.TRANSLATION_ERROR = "__TRANSLATION_ERROR__"
+
+        
 
     #---#  Utility for error reporting
 
     def report_error(self, error_text, inputString = "NONE"):
         print("[",self.name,"] ERROR -", error_text)
         if inputString != "NONE" : print("[",self.name,"] +-->>  ", inputString)        
-        return "__TRANSLATION_ERROR__"
+        return self.TRANSLATION_ERROR
 
 
     #---#  Utilities for variables fields identification
@@ -66,8 +71,8 @@ class translator:
 
             t1, t1_pos = self.get_token(targetString[stringShift:])
 
-            if self.tI.is_defined(t1):
-                return t1, self.tI.get_type(t1), (stringShift+t1_pos)
+            if self.ID.is_defined(t1):
+                return t1, self.ID.get_type(t1), (stringShift+t1_pos)
             else:
                 stringShift += (t1_pos + len(t1))
 
@@ -154,9 +159,12 @@ class translator:
         tempIndex = self.find_index(inputString[string_shift:])
 
         if tempIndex == "NONE":
-            if self.tI.type_with_index(varType):
-                return self.report_error("Index field expected after  "+varName, inputString)
+            if self.ID.type_with_index(varType):
+                return self.report_error("Index field expected for "+varType+" variable  "+varName, inputString)
         else:
+            if not self.ID.type_with_index(varType):
+                return self.report_error("Index field found for "+varType+" variable  "+varName, inputString)
+
             string_shift += (len(tempIndex)+2)
 
             # Translate index field - Recursive application
@@ -170,21 +178,21 @@ class translator:
 
         if varFeature == "NONE":
 
-            if self.tI.type_with_features(varType):
-                return self.report_error("Feature missing in the input string for variable  "+varName, inputString)
+            if self.ID.type_with_features(varType):
+                return self.report_error("Feature field expected for "+varType+" variable  "+varName, inputString)
 
         else:
-            if self.tI.type_with_features(varType):
+            if self.ID.type_with_features(varType):
 
                 ### Check if the feature found is present in the dictionary of the variable
-                if not self.tI.has_this_feature(varName, varFeature):
-                    return self.report_error("Feature   "+varFeature+"   not in the dictionary for variable   "+varName, inputString)
+                if not self.ID.has_this_feature(varName, varFeature):
+                    return self.report_error("Feature   "+varFeature+"   not in the dictionary for "+varType+" variable  "+varName, inputString)
 
                 string_shift += (len(varFeature)+1)
 
             else:
                 # Feature present for wrong variable type (scalar or vector)
-                return self.report_error("Feature   "+varFeature+"   not expected for variable   "+varName, inputString)
+                return self.report_error("Feature   "+varFeature+"   not expected for "+varType+" variable  "+varName, inputString)
                 
 
 
@@ -196,7 +204,9 @@ class translator:
 
         ###  Build the translated string using the method specific of the loaded interface
 
-        outputString = sHeader+self.tI.convert(varName, varIndex, varFeature)+sFooter
+        outputString = sHeader+self.ID.convert(varName, varIndex, varFeature)+sFooter
+
+        if self.TRANSLATION_ERROR in outputString:     outputString = self.TRANSLATION_ERROR
 
 
         return outputString
