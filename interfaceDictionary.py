@@ -27,6 +27,10 @@ class testInterface:
         self.typesWithIndex    = (                  self.vector_type,                   self.collection_type)
         self.typesWithFeature  = (                                    self.object_type, self.collection_type)
 
+        self.VARIABLE_label = "VARIABLE"
+        self.INDEX_label    = "INDEX"
+        self.FEATURE_label  = "FEATURE"
+
         self.DB = {}
         self.DB["interface_info"] = {}
         self.DB["target_formats"] = {}
@@ -58,6 +62,7 @@ class testInterface:
 
     def set_comments(self, comment_text):
         self.DB["interface_info"]["comments"] = comment_text
+
 
 
     # Placeholder for input-format-specific configurations
@@ -141,6 +146,7 @@ class testInterface:
     def load_DB(self, dbFileName):
         with open(dbFileName) as file:
             self.DB = json.load(file)
+        print("** DB loaded from file ", dbFileName)
         self.print_summary()
 
 
@@ -151,6 +157,21 @@ class testInterface:
         print("** Interface info")
         for ii in self.DB["interface_info"]:
             print(ii.ljust(20), "-->  ", self.DB["interface_info"][ii].ljust(20))
+
+
+    def _source_format(self, vType):
+        _source_format = self.VARIABLE_label
+        if self.type_with_index(vType):        _source_format+='['+self.INDEX_label+']'
+        if self.type_with_features(vType):     _source_format+='.'+self.FEATURE_label
+        return _source_format
+
+
+    def supported_formats(self):
+        print("** Supported Formats")
+        print(" Type                Source format              -->   Target Format ")
+        for vType in self.types:
+            print(vType.ljust(20), (self._source_format(vType)).ljust(24), "  -->  ", self.DB["target_formats"][vType])
+
 
 
     def print_target_formats(self):
@@ -175,7 +196,8 @@ class testInterface:
 
     def print_summary(self):
         self.print_interface_info()
-        self.print_target_formats()
+        #        self.print_target_formats()
+        self.supported_formats()
         self.print_variables_summary()
 
 
