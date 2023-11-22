@@ -92,6 +92,8 @@ class translator:
 
         if (index_end > index_begin):
             result = targetString[index_begin:index_end]
+        elif (index_end == index_begin):
+            result = "SKIP"
 
         return result
 
@@ -165,7 +167,10 @@ class translator:
             if not self.ID.type_with_index(varType):
                 return self.report_error("Index field found for "+varType+" variable  "+varName, inputString)
 
-            string_shift += (len(tempIndex)+2)
+            if tempIndex == "SKIP":
+                string_shift += 2
+            else:
+                string_shift += (len(tempIndex)+2)
 
             # Translate index field - Recursive application
             varIndex = self.translate_string(tempIndex)

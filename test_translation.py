@@ -114,3 +114,7 @@ test_translate(tX, "header + scalar1 + vector1[0] + Obj1.x1 + Col1[0] + footer")
 test_translate(tX, "header + scalar1 + vector1[0] + Obj1.x1 + Col1 + footer")
 
 
+# test of the "SKIP" feature for variables with index - [] -> no index in the translated string
+test_translate(tX, "header + scalar1 + vector1[] + Obj1.x1 + Col1[].pt + footer")
+
+

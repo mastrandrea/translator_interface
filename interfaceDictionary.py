@@ -217,13 +217,14 @@ class interfaceDictionary:
         if not typeVar in self.types:    return "__TRANSLATION_TYPE_ERROR__"   # Probably this check can be removed ...
 
         tVar = self.DB["vars"][sVar][sVar]
-        if sInd  != "NONE":    tInd  = sInd
+        if sInd  != "NONE":    tInd  = "["+sInd+"]"
+        if sInd  == "SKIP":    tInd  = ""
         if sFeat != "NONE":    tFeat = self.DB["vars"][sVar][sFeat]
 
         if   typeVar == self.scalar_type :        return (self.DB["target_formats"][typeVar].replace(self.VARIABLE_label, tVar))
-        elif typeVar == self.vector_type :        return (self.DB["target_formats"][typeVar].replace(self.VARIABLE_label, tVar).replace(self.INDEX_label,   tInd))
+        elif typeVar == self.vector_type :        return (self.DB["target_formats"][typeVar].replace(self.VARIABLE_label, tVar).replace("["+self.INDEX_label+"]",   tInd))
         elif typeVar == self.object_type :        return (self.DB["target_formats"][typeVar].replace(self.VARIABLE_label, tVar).replace(self.FEATURE_label, tFeat))
-        elif typeVar == self.collection_type :    return (self.DB["target_formats"][typeVar].replace(self.VARIABLE_label, tVar).replace(self.INDEX_label,   tInd).replace(self.FEATURE_label, tFeat))
+        elif typeVar == self.collection_type :    return (self.DB["target_formats"][typeVar].replace(self.VARIABLE_label, tVar).replace("["+self.INDEX_label+"]",   tInd).replace(self.FEATURE_label, tFeat))
 
 
 
