@@ -1,11 +1,18 @@
 ##
-##     var_name[index].feature
+##  Rewriting for NAIL/nanoAOD as baseline format
+##
+##     variable_feature[index]
+##
+##     - variable CANNOT contain "_"
+##     - feature  can contain multiple "_"
+##     - index is frequently omissed (due to automatic internal loop)
+##     - a token ending with a "(" is a function/method, NOT a variable/feature
 ##
 ## Types of codification for variables:
 ##  - Scalar:     no index, no feature         e.g. RunNumber
-##  - Vector:        INDEX, no feature         e.g. MC_weights[i]
-##  - Object:     no index,    FEATURE         e.g. MET.x, MET.y
-##  - Collection:    INDEX,    FEATURE         e.e. electron[i].pT
+##  - Vector:        INDEX, no feature         e.g. MCweights[i]
+##  - Object:     no index,    FEATURE         e.g. MET_x, MET_y
+##  - Collection:    INDEX,    FEATURE         e.e. electron_pT[i]
 ##
 ##
 
@@ -29,9 +36,10 @@ class interfaceDictionary:
         self.FEATURE_label  = "FEATURE"
 
         self.DB = {}
-        self.DB["interface_info"] = {}
-        self.DB["target_formats"] = {}
-        self.DB["vars"]           = {}
+        self.DB["interface_info"]   = {}
+        self.DB["original_formats"] = {}
+        self.DB["target_formats"]   = {}
+        self.DB["vars"]             = {}
 
         self.DB["interface_info"]["name"]     = ""
         self.DB["interface_info"]["comments"] = ""
@@ -113,15 +121,21 @@ class interfaceDictionary:
             self.DB["vars"][var_origin][feat_origin] = feat_target
 
 
-    def set_target_format(self, tType, tFormat):
-        if   not tType in self.types:                                                    print("** WRONG type set : ", tType)
-        elif not self.VARIABLE_label in tFormat:                                         print("** target format(", tFormat, ") - ERROR : missing ", self.VARIABLE_label, " keyword in the format string.")
-        elif (self.type_with_index(tType) and  not self.INDEX_label in tFormat):         print("** target format(", tFormat, ") - ERROR : missing ", self.INDEX_label,    " keyword in the format string.")
-        elif (self.type_with_features(tType) and  not self.FEATURE_label in tFormat):    print("** target format(", tFormat, ") - ERROR : missing ", self.FEATURE_label,  " keyword in the format string.")
+    def set_format(self, f_type, f_string, side):
+        if (side != "original" and side != "target"):                                      print("** WRONG side : ", side, "  ('original' or 'target')")
+        if   not f_type in self.types:                                                     print("** WRONG format type set : ", f_type)
+        elif not self.VARIABLE_label in f_string:                                          print("** "+side+" format(", f_string, ") - ERROR : missing ", self.VARIABLE_label, " keyword in the format string.")
+        elif (self.type_with_index(f_type) and  not self.INDEX_label in f_string):         print("** "+side+" format(", f_string, ") - ERROR : missing ", self.INDEX_label,    " keyword in the format string.")
+        elif (self.type_with_features(f_type) and  not self.FEATURE_label in f_string):    print("** "+side+" format(", f_string, ") - ERROR : missing ", self.FEATURE_label,  " keyword in the format string.")
         else:
-            self.DB["target_formats"][tType] = tFormat
+            self.DB[side+"_formats"][f_type] = f_string
 
-        print("** set  ", tType.ljust(20), (self._source_format(tType)).ljust(24), "  -->  ", self.DB["target_formats"][tType])
+        print("** set  ", side.ljust(10), " format for ", f_type.ljust(12), " variables : ", self.DB[side+"_formats"][f_type])
+
+
+
+    def set_original_format(self, f_type, f_string):    self.set_format(f_type, f_string, "original")
+    def set_target_format(  self, f_type, f_string):    self.set_format(f_type, f_string, "target")
 
 
 
@@ -177,8 +191,8 @@ class interfaceDictionary:
 
     def _source_format(self, vType):
         _source_format = self.VARIABLE_label
+        if self.type_with_features(vType):     _source_format+='_'+self.FEATURE_label
         if self.type_with_index(vType):        _source_format+='['+self.INDEX_label+']'
-        if self.type_with_features(vType):     _source_format+='.'+self.FEATURE_label
         return _source_format
 
 
@@ -225,32 +239,15 @@ class interfaceDictionary:
 
     ## Convertion from source to target format ###################################################################
 
-    def convert(self, sVar, sInd, sFeat):
+    def convert(self, sVar, sFeat, sInd):
 
         typeVar = self.get_type(sVar)
 
         if not typeVar in self.types:    return "__TRANSLATION_TYPE_ERROR__"   # Probably this check can be removed ...
 
         tVar  = self.DB["vars"][sVar][sVar]
-        tInd  = ""
         tFeat = ""
-
-        #        if sInd  != "NONE":    tInd  = "["+sInd+"]"
-        #        if sInd  == "SKIP":    tInd  = ""
-        #        if sFeat != "NONE":    tFeat = self.DB["vars"][sVar][sFeat]
-        #
-        #        if   typeVar == self.scalar_type :        return (self.DB["target_formats"][typeVar].replace(self.VARIABLE_label, tVar))
-        #        elif typeVar == self.vector_type :        return (self.DB["target_formats"][typeVar].replace(self.VARIABLE_label, tVar).replace("["+self.INDEX_label+"]",   tInd))
-        #        elif typeVar == self.object_type :        return (self.DB["target_formats"][typeVar].replace(self.VARIABLE_label, tVar).replace(self.FEATURE_label, tFeat))
-        #        elif typeVar == self.collection_type :    return (self.DB["target_formats"][typeVar].replace(self.VARIABLE_label, tVar).replace("["+self.INDEX_label+"]",   tInd).replace(self.FEATURE_label, tFeat))
-
-        # INDEX
-
-        if (sInd  == "NONE") or (sInd  == "SKIP"):
-            if   typeVar == self.vector_type :        typeVar = self.scalar_type
-            elif typeVar == self.collection_type :    typeVar = self.object_type
-        else:
-            tInd  = sInd
+        tInd  = ""
 
 
         # FEATURE
@@ -260,6 +257,15 @@ class interfaceDictionary:
             elif typeVar == self.collection_type :    typeVar = self.vector_type
         else:
             tFeat = self.DB["vars"][sVar][sFeat]
+
+
+        # INDEX
+
+        if (sInd  == "NONE") or (sInd  == "SKIP"):
+            if   typeVar == self.vector_type :        typeVar = self.scalar_type
+            elif typeVar == self.collection_type :    typeVar = self.object_type
+        else:
+            tInd  = sInd
 
 
         # Build translated string

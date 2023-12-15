@@ -4,10 +4,16 @@ from interfaceDictionary import interfaceDictionary
 
 dictionaryFileName = "nanoAOD_db.json"
 
-t = interfaceDictionary("nanoAOD-test")
-t.set_comments("Test interface for nanoAOD format")
+t = interfaceDictionary("nanoAOD2nanoAOD_test_interface")
+t.set_comments("Test interface for nanoAOD->nanoAOD format translation")
 
 #t.print_summary()
+
+t.set_original_format("scalar",     "VARIABLE")
+t.set_original_format("vector",     "VARIABLE[INDEX]")
+t.set_original_format("object",     "VARIABLE_FEATURE")
+t.set_original_format("collection", "VARIABLE_FEATURE[INDEX]")
+
 
 t.set_target_format("scalar",     "VARIABLE")
 t.set_target_format("vector",     "VARIABLE[INDEX]")
@@ -65,7 +71,6 @@ t.add_feature("PV", "z",    "z")
 
 ### Muon
 
-#t.add_scalar("nMuon",  "nMuon")
 t.add_collection("Muon", "Muon")
 t.add_feature("Muon", "pt",             "pt")
 t.add_feature("Muon", "eta",            "eta")
@@ -83,13 +88,12 @@ t.add_feature("Muon", "dzErr",          "dzErr")
 t.add_feature("Muon", "jetIdx",         "jetIdx")
 t.add_feature("Muon", "genPartIdx",     "genPartIdx")
 
-t.add_feature("Muon", "iso",            "iso")
-t.add_feature("Muon", "mediumId",       "mediumId")
+#t.add_feature("Muon", "iso",            "iso")
+#t.add_feature("Muon", "mediumId",       "mediumId")
 
 
 ### Electron
 
-#t.add_scalar("nElectron",  "nElectron")
 t.add_collection("Electron", "Electron")
 t.add_feature("Electron", "pt",             "pt")
 t.add_feature("Electron", "eta",            "eta")
@@ -109,7 +113,6 @@ t.add_feature("Electron", "genPartIdx",      "genPartIdx")
 
 ### Tau
 
-#t.add_scalar("nTau",  "nTau")
 t.add_collection("Tau", "Tau")
 t.add_feature("Tau", "pt",              "pt")
 t.add_feature("Tau", "eta",             "eta")
@@ -136,7 +139,6 @@ t.add_feature("Tau", "idAntiMuTight",   "idAntiMuTight")
 
 ### Photon
 
-#t.add_scalar("nPhoton",  "nPhoton")
 t.add_collection("Photon", "Photon")
 t.add_feature("Photon", "pt",             "pt")
 t.add_feature("Photon", "eta",            "eta")
@@ -162,7 +164,6 @@ t.add_feature("MET", "CovYY",        "CovYY")
 
 ### Jet
 
-#t.add_scalar("nJet",  "nJet")
 t.add_collection("Jet", "Jet")
 t.add_feature("Jet", "pt",   "pt")
 t.add_feature("Jet", "eta",  "eta")

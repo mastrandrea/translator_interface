@@ -1,17 +1,28 @@
+##
+##  Translation  FROM  NAIL/nanoAOD format  TO  target format (e.g. PHYSLITE)
+##
+##
+
 from interfaceDictionary import interfaceDictionary
 
 
 class translator:
     def __init__(self, interfaceDictionaryFile = "NONE", name = "translator"):
         self.name = name
+        self.do_translate = True
+        self.TRANSLATION_ERROR = "__TRANSLATION_ERROR__"
+
         if interfaceDictionaryFile == "NONE" :
             print("[",self.name,"] ERROR -", " Interface Dictionary File not set! ")
             return
 
-        self.ID = interfaceDictionary("", interfaceDictionaryFile)
-        print("[",self.name,"] translator object created, with interface ",self.ID.name())
+        if interfaceDictionaryFile == "NO_TRANSLATION" :
+            self.do_translate = False
+        else:
+            self.ID = interfaceDictionary("", interfaceDictionaryFile)
+
+        print("[",self.name,"] translator object  ",self.name,"  created, with interface dictionary  ",interfaceDictionaryFile)
         #print(self.ID)
-        self.TRANSLATION_ERROR = "__TRANSLATION_ERROR__"
 
         
 
@@ -24,15 +35,15 @@ class translator:
 
 
     #---#  Utilities for variables fields identification
-    
-    def get_token(self, targetString):
 
-        sToken = ""
+    def get_token(self, targetString, underscore_allowed = True):
+
+        sToken     = ""
         sToken_pos = 0
 
         for c in targetString:
 
-            if ((c.isalnum()) or (c == '_')):
+            if ((c.isalnum()) or (underscore_allowed and (c == '_'))):
                 sToken += c
             else:
                 if sToken == "":
@@ -69,7 +80,7 @@ class translator:
 
         while stringShift < len(targetString):
 
-            t1, t1_pos = self.get_token(targetString[stringShift:])
+            t1, t1_pos = self.get_token(targetString[stringShift:], underscore_allowed=False)
 
             if self.ID.is_defined(t1):
                 return t1, self.ID.get_type(t1), (stringShift+t1_pos)
@@ -99,21 +110,22 @@ class translator:
 
 
 
-    # This assumes string starting with "."
+    # This assumes string starting with "_" (NAIL/nanoAOD specific)
     # If a feature is found, its presence in the variable's dictionary will be checked in the main function
     def find_feature(self, targetString):
         result = "NONE"
 
-        if (len(targetString) < 2) or (targetString[0] != "."):
+        if (len(targetString) < 2) or (targetString[0] != "_"):
             return result
 
-        t1, t1_pos = self.get_token(targetString[1:])
+        t1, t1_pos = self.get_token(targetString[1:], underscore_allowed=True)
 
         if t1_pos != 0:
             self.report_error("Wrong-formed feature filed  "+t1, targetString)
 
         # Protection against functions!
-        if (t1 != "") and (targetString[len(t1)+1:len(t1)+2] != "("):
+        l = len(t1)
+        if (t1 != "") and (targetString[l+1:l+2] != "("):
             result = t1
 
         return result
@@ -122,16 +134,21 @@ class translator:
 
 
     ##########  Methods for the string translation  ###############################
-
+    #
+    # Note: index field is usually not present in case of automatic internal index loop - it is used only for explicit picking (re-definition) of one element of vector/collection
+    #
     def translate_string(self, inputString):
 
+        if not self.do_translate:
+            return inputString
+        
         if inputString == "":
             return inputString
 
         sHeader     = ""
         varName     = "NONE"
-        varIndex    = "NONE"
         varFeature  = "NONE"
+        varIndex    = "NONE"
         sFooter     = ""
 
         varType     = ""
@@ -157,38 +174,16 @@ class translator:
 
 
 
-        ### Search for an index field
-
-        tempIndex = self.find_index(inputString[string_shift:])
-
-#        if tempIndex == "NONE":
-#            if self.ID.type_with_index(varType):
-#                return self.report_error("Index field expected for "+varType+" variable  "+varName, inputString)
-#        else:
-        if tempIndex != "NONE":
-            if not self.ID.type_with_index(varType):
-                return self.report_error("Index field found for "+varType+" variable  "+varName, inputString)
-
-            if tempIndex == "SKIP":
-                string_shift += 2
-            else:
-                string_shift += (len(tempIndex)+2)
-
-            # Translate index field - Recursive application
-            varIndex = self.translate_string(tempIndex)
-
-
-
         ### Search for a feature
 
         varFeature = self.find_feature(inputString[string_shift:])
 
-#        if varFeature == "NONE":
-#
-#            if self.ID.type_with_features(varType):
-#                return self.report_error("Feature field expected for "+varType+" variable  "+varName, inputString)
-#
-#        else:
+        #        if varFeature == "NONE":
+        #
+        #            if self.ID.type_with_features(varType):
+        #                return self.report_error("Feature field expected for "+varType+" variable  "+varName, inputString)
+        #
+        #        else:
         if varFeature != "NONE":
 
             if self.ID.type_with_features(varType):
@@ -205,6 +200,28 @@ class translator:
                 
 
 
+        ### Search for an index field
+
+        tempIndex = self.find_index(inputString[string_shift:])
+
+        #        if tempIndex == "NONE":
+        #            if self.ID.type_with_index(varType):
+        #                return self.report_error("Index field expected for "+varType+" variable  "+varName, inputString)
+        #        else:
+        if tempIndex != "NONE":
+            if not self.ID.type_with_index(varType):
+                return self.report_error("Index field found for "+varType+" variable  "+varName, inputString)
+
+            if tempIndex == "SKIP":
+                string_shift += 2
+            else:
+                string_shift += (len(tempIndex)+2)
+
+            # Translate index field - Recursive application
+            varIndex = self.translate_string(tempIndex)
+
+
+
         ### Select the footer - Recursive application
 
         sFooter = self.translate_string(inputString[string_shift:])
@@ -213,7 +230,7 @@ class translator:
 
         ###  Build the translated string using the method specific of the loaded interface
 
-        outputString = sHeader+self.ID.convert(varName, varIndex, varFeature)+sFooter
+        outputString = sHeader+self.ID.convert(varName, varFeature, varIndex)+sFooter
 
         if self.TRANSLATION_ERROR in outputString:     outputString = self.TRANSLATION_ERROR
 
@@ -231,12 +248,15 @@ class translator:
     
     def add_to_dictionary(self, inputString, hasIndex = True, featuresFrom = ""):
 
+        ## If no dictionary is set then skip
+
+        if not self.do_translate:
+            return
+
         ## Check featuresFrom in db
         ## Check varFeature and featuresFrom simultaneously != 0 -> issue
 
-
-
-        ### Single identifier (VARIABLE[INDEX].FEATURE) is assumed - eventual recursive translation of the INDEX to be evaluated
+        ### Single identifier (VARIABLE_FEATURE[INDEX]) is assumed - eventual recursive translation of the INDEX to be evaluated
 
         if inputString == "":
             self.report_error("Trying to add empty identifier to the dictionary! ")
@@ -250,7 +270,7 @@ class translator:
 
         ### The first token is the variable name
 
-        varName, varName_pos = self.get_token(inputString)
+        varName, varName_pos = self.get_token(inputString, False)
 
 
         #        ### Search for an index field
@@ -274,7 +294,7 @@ class translator:
         varFeature = self.find_feature(inputString[string_shift:])
 
 
-        print("Adding to the dictionary  "+varName+"."+varFeature)
+        print("Adding to the dictionary  variable "+varName+" , feature "+varFeature)
 
 
 
@@ -326,3 +346,109 @@ class translator:
                 else:           self.ID.add_scalar(varName)
 
         return
+
+
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
