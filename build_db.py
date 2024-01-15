@@ -22,36 +22,37 @@ t.set_target_format("collection", "VARIABLE[INDEX].FEATURE")
 
 
 # Scalar variables (no index, no variables)
-t.add_scalar("scalar1",  "SCALAR1")
-t.add_scalar("scalar_2", "SCALAR_2")
-t.add_scalar("s",        "S")
+t.add_variable("scalar1", "SCALAR1")
+t.add_variable("scalar2", "SCALAR2")
+t.add_variable("s",        "S")
 
 
 # Vector variables (index, no feature)
-t.add_vector("vector1",  "VECTOR1")
-t.add_vector("vector_2", "VECTOR_2")
+t.add_variable("vector1", "VECTOR1")
+t.add_variable("vector2", "VECTOR2")
 
 
 # Object variables (no index, feature)
-t.add_object("Obj1", "OBJ1")
+t.add_variable("Obj1", "OBJ1")
 t.add_feature("Obj1", "x1", "X1")
 t.add_feature("Obj1", "y1", "Y2")
 
 
 # Collection variables (index, feature)
-t.add_collection("Col1", "COL1")
+t.add_variable("Col1", "COL1")
 t.add_feature("Col1", "pt",  "PT")
 t.add_feature("Col1", "eta", "ETA")
 t.add_feature("Col1", "phi", "PHI")
 t.add_feature("Col1", "a",   "A")
 t.add_feature("Col1", "a_b", "A_B")
 
-t.add_collection("Col2", "COL2")
+t.add_variable("Col2", "COL2")
 t.add_feature("Col2", "pt",  "PT")
 t.add_feature("Col2", "eta", "ETA")
 t.add_feature("Col2", "phi", "PHI")
 
-t.add_collection("Col3", "Col3")
+t.add_variable("Col3", "Col3")
+t.add_variable("nCol3", "nCol3")
 t.add_feature("Col3", "pt",  "pt")
 t.add_feature("Col3", "eta", "eta")
 t.add_feature("Col3", "phi", "phi")

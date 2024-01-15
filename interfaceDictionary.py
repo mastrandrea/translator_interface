@@ -14,45 +14,27 @@
 ##  - Object:     no index,    FEATURE         e.g. MET_x, MET_y
 ##  - Collection:    INDEX,    FEATURE         e.e. electron_pT[i]
 ##
-##
+## Translation (i.e. dictionary) is relevant for variables and features *ONLY*
+## - index information managed in the convert method only!
 
 import json
 
 class interfaceDictionary:
     def __init__(self, interfaceName = "", db_file = ""):
 
-        self.attribute_undefined = "U"
-        self.attribute_absent    = "N"
-        self.attribute_present   = "Y"
+        self.VARIABLE_label = "VARIABLE"
+        self.FEATURE_label  = "FEATURE"
+        self.INDEX_label    = "INDEX"
 
-        self.undefined_type  = "undefined"
         self.scalar_type     = "scalar"
         self.vector_type     = "vector"
         self.object_type     = "object"
         self.collection_type = "collection"
-        self._TYPE_key       = "TYPE"
-
-        self.type_from_tag = {}
-        self.type_from_tag["UU"] = self.undefined_type
-        self.type_from_tag["UN"] = self.undefined_type
-        self.type_from_tag["UY"] = self.undefined_type
-        self.type_from_tag["NU"] = self.undefined_type
-        self.type_from_tag["NN"] = self.scalar_type
-        self.type_from_tag["NY"] = self.vector_type
-        self.type_from_tag["YU"] = self.undefined_type
-        self.type_from_tag["YN"] = self.object_type
-        self.type_from_tag["YY"] = self.collection_type
-
-        #        for tt in self.type_from_tag:
-        #            print("self.type_from_tag[", tt, "] = ", self.type_from_tag[tt])
 
         self.types             = (self.scalar_type, self.vector_type, self.object_type, self.collection_type)
         self.typesWithIndex    = (                  self.vector_type,                   self.collection_type)
         self.typesWithFeature  = (                                    self.object_type, self.collection_type)
 
-        self.VARIABLE_label = "VARIABLE"
-        self.FEATURE_label  = "FEATURE"
-        self.INDEX_label    = "INDEX"
 
         self.DB = {}
         self.DB["interface_info"] = {}
@@ -63,7 +45,11 @@ class interfaceDictionary:
         self.DB["interface_info"]["name"]     = ""
         self.DB["interface_info"]["comments"] = ""
 
-        for t in self.types:   self.DB["target_formats"][t] = "NOT_SET"
+
+        
+        for t in self.types:
+            self.DB["base_formats"][t]   = self._source_format(t)
+            self.DB["target_formats"][t] = "NOT_SET"
 
         if db_file != "":      self.load_DB(db_file)
 
@@ -99,28 +85,7 @@ class interfaceDictionary:
 
     def is_defined(self, var_name):        return (var_name in self.DB["vars"])
 
-    def get_type(self, var_name):
-        if self.is_defined(var_name):
-            return self.DB["vars"][var_name][self._TYPE_key]
-        else:
-            return "NONE"
-
-    def type_with_features(self, var_type):                  return (var_type in self.typesWithFeature)
-    def type_with_index(   self, var_type):                  return (var_type in self.typesWithIndex)
-
-    def var_with_features( self, var_name):                  return self.type_with_features(self.get_type(var_name))
-    def var_with_index(    self, var_name):                  return self.type_with_index(   self.get_type(var_name))
     def has_this_feature(  self, var_name, feature_name):    return (feature_name in self.DB["vars"][var_name])   # Search by source-name 
-
-    def build_typeTag(self, attribute_feature, attribute_index):
-        tag = attribute_feature+attribute_index
-        if not tag in self.type_from_tag:
-            print("** WRONG type attributes : ", attribute_feature, attribute_index)
-            return ""
-        return tag
-
-    def feature_attribute(self, _type_tag):    return _type_tag[:1]
-    def index_attribute(  self, _type_tag):    return _type_tag[1:]
 
 
     def type_if(self, has_feature, has_index):
@@ -142,83 +107,50 @@ class interfaceDictionary:
             print("** ERROR trying to add a variable already defined in the dictionary : ", var_origin)
             return
 
+        if "_" in var_origin:
+            print("** ERROR trying to add a variable with an underscore in the base name : ", var_origin)
+            return
+
+        if "_" in var_target:
+            print("** ERROR trying to add a variable with an underscore in the target name : ", var_target)
+            return
+
+
         if var_target == "": var_target = var_origin
 
-        self.DB["vars"][var_origin] = {var_origin:var_target, "typeTag": self.build_typeTag(self.attribute_undefined, self.attribute_undefined)}
-        self.update_type_from_tag(var_origin)
-
-
-    def update_type_from_tag(self, var_origin):     self.DB["vars"][var_origin][self._TYPE_key] = self.type_from_tag[self.DB["vars"][var_origin]["typeTag"]]
-
-
-    def set_has_feature(self, var_origin, _has_feature=True):
-        if not self.is_defined(var_origin):
-            print("** ERROR trying to set has_feature attribute for an udefined variable : ", var_origin)
-            return
-        feature_a = self.attribute_present if _has_feature else self.attribute_absent
-        index_a   = self.index_attribute(self.DB["vars"][var_origin]["typeTag"])
-
-        self.DB["vars"][var_origin]["typeTag"] = self.build_typeTag(feature_a, index_a)
-        self.update_type_from_tag(var_origin)
-        return
-
-
-    def set_has_index(self, var_origin, _has_index=True):
-        if not self.is_defined(var_origin):
-            print("** ERROR trying to set has_index attribute for an udefined variable : ", var_origin)
-            return
-        feature_a = self.feature_attribute(self.DB["vars"][var_origin]["typeTag"])
-        index_a   = self.attribute_present if _has_index else self.attribute_absent
-
-        self.DB["vars"][var_origin]["typeTag"] = self.build_typeTag(feature_a, index_a)
-        self.update_type_from_tag(var_origin)
-        return
-
-
-    def set_type(self, var_origin, var_type):
-        self.set_has_feature(var_origin, self.type_with_features(var_type))
-        self.set_has_index(  var_origin, self.type_with_index(   var_type))
-
-    def set_scalar(    self, var_origin):     self.set_type(var_origin, self.scalar_type)
-    def set_vector(    self, var_origin):     self.set_type(var_origin, self.vector_type)
-    def set_object(    self, var_origin):     self.set_type(var_origin, self.object_type)
-    def set_collection(self, var_origin):     self.set_type(var_origin, self.collection_type)
-               
-
-    def add_and_set(self, var_origin, var_target, var_type):
-        self.add_variable(var_origin, var_target)
-        self.set_type(var_origin, var_type)
-        #  AUTOMATIC addition of nVar scalar counter for variables with index ... this might be re-evaluated at a later stage
-        if self.type_with_index(var_type):
-            self.add_variable("n"+var_origin, "n"+var_target)
-            self.set_type("n"+var_origin, self.scalar_type)
-        
-
-    def add_scalar(    self, var_origin, var_target=""): self.add_and_set(var_origin, var_target, self.scalar_type) 
-    def add_vector(    self, var_origin, var_target=""): self.add_and_set(var_origin, var_target, self.vector_type) 
-    def add_object(    self, var_origin, var_target=""): self.add_and_set(var_origin, var_target, self.object_type) 
-    def add_collection(self, var_origin, var_target=""): self.add_and_set(var_origin, var_target, self.collection_type) 
- 
+        self.DB["vars"][var_origin] = {var_origin:var_target}
 
 
     def add_feature(self, var_origin, feat_origin, feat_target=""):
         if not self.is_defined(var_origin):
             print("** ERROR  -  variable ", var_origin, "  not defined!")
-        else:
-            if feat_target == "": feat_target = feat_origin
-            self.DB["vars"][var_origin][feat_origin] = feat_target
+            return
+        if self.has_this_feature(var_origin, feat_origin):
+            print("** ERROR  -  feature ", feat_origin, "  already defined for variable ", var_origin)
+            return
+
+        if feat_target == "": feat_target = feat_origin
+        self.DB["vars"][var_origin][feat_origin] = feat_target
         return
 
+
+
+    def _source_format(self, vType):
+        _source_format = self.VARIABLE_label
+        if self.type_with_features(vType):     _source_format+='_'+self.FEATURE_label
+        if self.type_with_index(vType):        _source_format+='['+self.INDEX_label+']'
+        return _source_format
+
+
     def set_format(self, f_type, f_string, side):
-        if   (side != "base" and side != "target"):                                        print("** WRONG side : ", side, "  ('base' or 'target')")
-        elif not f_type in self.types:                                                     print("** WRONG format type set : ", f_type)
-        elif not self.VARIABLE_label in f_string:                                          print("** "+side+" format(", f_string, ") - ERROR : missing ", self.VARIABLE_label, " keyword in the format string.")
-        elif (self.type_with_index(   f_type) and  not self.INDEX_label   in f_string):    print("** "+side+" format(", f_string, ") - ERROR : missing ", self.INDEX_label,    " keyword in the format string.")
-        elif (self.type_with_features(f_type) and  not self.FEATURE_label in f_string):    print("** "+side+" format(", f_string, ") - ERROR : missing ", self.FEATURE_label,  " keyword in the format string.")
+        if   (side != "base" and side != "target"):                                         print("** WRONG side : ", side, "  ('base' or 'target')")
+        elif not f_type in self.types:                                                      print("** WRONG format type set : ", f_type)
+        elif not self.VARIABLE_label in f_string:                                           print("** "+side+" format(", f_string, ") - ERROR : missing ", self.VARIABLE_label, " keyword in the format string.")
+        elif (f_type in self.typesWithIndex   and  not self.INDEX_label   in f_string):    print("** "+side+" format(", f_string, ") - ERROR : missing ", self.INDEX_label,    " keyword in the format string.")
+        elif (f_type in self.typesWithFeature and  not self.FEATURE_label in f_string):    print("** "+side+" format(", f_string, ") - ERROR : missing ", self.FEATURE_label,  " keyword in the format string.")
         else:
             self.DB[side+"_formats"][f_type] = f_string
             print("** set  ", side.ljust(10), " format for ", f_type.ljust(12), " variables : ", self.DB[side+"_formats"][f_type])
-
 
 
     def set_base_format(  self, f_type, f_string):    self.set_format(f_type, f_string, "base")
@@ -227,15 +159,9 @@ class interfaceDictionary:
 
 
     def dictionary_for(self, _var):
-        # Variable type requested
+        # All variables requested
         if _var == "all":      return self.DB["vars"]
 
-        if _var in self.types:
-            _dict = {}
-            for v in self.DB["vars"]:
-                if (self.get_type(v) == _var):     _dict[v] = self.DB["vars"][v]
-            return _dict
-                    
         # Variable name requested
         if self.is_defined(_var):    return self.DB["vars"][_var]
 
@@ -248,7 +174,7 @@ class interfaceDictionary:
         fl = []
         d_var = self.dictionary_for(_var)
         for f in d_var:
-            if (f != _var) and (f != self._TYPE_key): fl.append(f)
+            if (f != _var):  fl.append(f)
 
         return fl
 
@@ -278,8 +204,8 @@ class interfaceDictionary:
 
     def _source_format(self, vType):
         _source_format = self.VARIABLE_label
-        if self.type_with_features(vType):     _source_format+='_'+self.FEATURE_label
-        if self.type_with_index(vType):        _source_format+='['+self.INDEX_label+']'
+        if vType in self.typesWithFeature:      _source_format+='_'+self.FEATURE_label
+        if vType in self.typesWithIndex:        _source_format+='['+self.INDEX_label+']'
         return _source_format
 
 
@@ -296,24 +222,15 @@ class interfaceDictionary:
             print(tf.ljust(20), "-->  ", self.DB["target_formats"][tf].ljust(20))
 
 
-    def list_variables(self, var_type="all"):
+    def list_variables(self):
         for v in self.DB["vars"]:
-            if (var_type == "all") or (self.get_type(v) == var_type):
-                print(v.ljust(20), "-->  ", self.DB["vars"][v][v].ljust(20), " (", self.DB["vars"][v][self._TYPE_key], ")")
-
-
-    def print_variables_summary(self):
-        print("** Variables Summary")
-        counter = {self.scalar_type:0, self.vector_type:0, self.object_type:0, self.collection_type:0, "NONE":0}
-        for v in self.DB["vars"]:    counter[self.get_type(v)] += 1
-        for t in counter:         print(t.ljust(20), "-->   entries: ", counter[t])
+            print(v.ljust(20), "-->  ", self.DB["vars"][v][v].ljust(20))
 
 
     def print_summary(self):
         self.print_interface_info()
         #        self.print_target_formats()
         self.supported_formats()
-        self.print_variables_summary()
 
 
     def print_dictionary(self, _name = "all"):
@@ -327,10 +244,6 @@ class interfaceDictionary:
     ## Convertion from source to target format ###################################################################
 
     def convert(self, sVar, sFeat, sInd):
-
-        #        typeVar = self.get_type(sVar)
-        #
-        #        if not typeVar in self.types:    return "__TRANSLATION_TYPE_ERROR__"   # Probably this check can be removed ...
 
         tVar  = self.DB["vars"][sVar][sVar]
         tFeat = ""

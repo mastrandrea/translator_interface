@@ -31,7 +31,7 @@ def test_translate(tX, sTest):
 
 
 
-test_translate(tX, "scalar_222 = header+Col2_pt[2]-scalar1/scalar_1-scalar_21+scalar_2_ +ascalar_2+s-1 * vec_abc[5] = Col3_pt[scalar_2 - 3. Col1_eta[2]] + Obj1_x1 - footer s")
+test_translate(tX, "scalar_222 = header+Col2_pt[2]-scalar1/scalar_1-scalar_21+scalar_2_ +ascalar_2+s-1 * vec_abc[5] = Col3_pt[scalar2 - 3. Col1_eta[2]] + Obj1_x1 - footer s")
 
 
 
@@ -60,7 +60,7 @@ test_translate(tX, "header  Col1_a_b[3.0 * fun(Col2_phi[2] + 2)] > 20 && Col2_al
 
 #---------- Scalar
 
-test_translate(tX, "header + scalar1 / scalar_1 - scalar_2 * vec_abc[5] = 3. footer")
+test_translate(tX, "header + scalar1 / scalar_1 - scalar2 * vec_abc[5] = 3. footer")
 
 
 
