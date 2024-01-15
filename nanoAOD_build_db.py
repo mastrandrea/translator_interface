@@ -47,14 +47,14 @@ t.set_target_format("collection", "VARIABLE_FEATURE[INDEX]")
 
 ### Run & event
 
-t.add_scalar("run",  "run")
-t.add_scalar("luminosityBlock", "luminosityBlock")
-t.add_scalar("event",  "event")
+t.add_variable("run",  "run")
+t.add_variable("luminosityBlock", "luminosityBlock")
+t.add_variable("event",  "event")
 
 
 ### HLT
 
-t.add_object("HLT", "HLT")
+t.add_variable("HLT", "HLT")
 t.add_feature("HLT", "IsoMu24_eta2p1",                 "IsoMu24_eta2p1")
 t.add_feature("HLT", "IsoMu24",                        "IsoMu24")
 t.add_feature("HLT", "IsoMu17_eta2p1_LooseIsoPFTau20", "IsoMu17_eta2p1_LooseIsoPFTau20")
@@ -62,7 +62,7 @@ t.add_feature("HLT", "IsoMu17_eta2p1_LooseIsoPFTau20", "IsoMu17_eta2p1_LooseIsoP
 
 ### PV
 
-t.add_object("PV", "PV")
+t.add_variable("PV", "PV")
 t.add_feature("PV", "npvs", "npvs")
 t.add_feature("PV", "x",    "x")
 t.add_feature("PV", "y",    "y")
@@ -71,7 +71,8 @@ t.add_feature("PV", "z",    "z")
 
 ### Muon
 
-t.add_collection("Muon", "Muon")
+t.add_variable("Muon", "Muon")
+t.add_variable("nMuon", "nMuon")
 t.add_feature("Muon", "pt",             "pt")
 t.add_feature("Muon", "eta",            "eta")
 t.add_feature("Muon", "phi",            "phi")
@@ -94,7 +95,8 @@ t.add_feature("Muon", "genPartIdx",     "genPartIdx")
 
 ### Electron
 
-t.add_collection("Electron", "Electron")
+t.add_variable("Electron", "Electron")
+t.add_variable("nElectron", "nElectron")
 t.add_feature("Electron", "pt",             "pt")
 t.add_feature("Electron", "eta",            "eta")
 t.add_feature("Electron", "phi",            "phi")
@@ -113,7 +115,8 @@ t.add_feature("Electron", "genPartIdx",      "genPartIdx")
 
 ### Tau
 
-t.add_collection("Tau", "Tau")
+t.add_variable("Tau", "Tau")
+t.add_variable("nTau", "nTau")
 t.add_feature("Tau", "pt",              "pt")
 t.add_feature("Tau", "eta",             "eta")
 t.add_feature("Tau", "phi",             "phi")
@@ -139,7 +142,8 @@ t.add_feature("Tau", "idAntiMuTight",   "idAntiMuTight")
 
 ### Photon
 
-t.add_collection("Photon", "Photon")
+t.add_variable("Photon", "Photon")
+t.add_variable("nPhoton", "nPhoton")
 t.add_feature("Photon", "pt",             "pt")
 t.add_feature("Photon", "eta",            "eta")
 t.add_feature("Photon", "phi",            "phi")
@@ -152,7 +156,7 @@ t.add_feature("Photon", "genPartIdx",      "genPartIdx")
 
 ### MET
 
-t.add_object("MET", "MET")
+t.add_variable("MET", "MET")
 t.add_feature("MET", "pt",           "pt")
 t.add_feature("MET", "phi",          "phi")
 t.add_feature("MET", "sumet",        "sumet")
@@ -164,7 +168,8 @@ t.add_feature("MET", "CovYY",        "CovYY")
 
 ### Jet
 
-t.add_collection("Jet", "Jet")
+t.add_variable("Jet", "Jet")
+t.add_variable("nJet", "nJet")
 t.add_feature("Jet", "pt",   "pt")
 t.add_feature("Jet", "eta",  "eta")
 t.add_feature("Jet", "phi",  "phi")

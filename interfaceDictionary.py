@@ -101,7 +101,7 @@ class interfaceDictionary:
     #---#  Build
 
     #    def add_variable(self, var_origin, var_target, var_type):
-    def add_variable(self, var_origin, var_target):
+    def add_variable(self, var_origin, var_target=""):
 
         if self.is_defined(var_origin):
             print("** ERROR trying to add a variable already defined in the dictionary : ", var_origin)

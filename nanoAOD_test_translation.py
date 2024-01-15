@@ -92,72 +92,72 @@ d_target["MassWindow"]                =  "abs(Higgs_m-nominalHMass)<higgsMassWin
 
 # Define
 d_source["Muon_m"]                    =  "0*Muon_pfRelIso04_all+0.1056f"
-tX.add_to_dictionary("Muon_m", False)
+tX.add_to_dictionary("Muon_m")
 
 d_source["Muon_p4"]                   =  "vector_map_t<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float> > >(Muon_pt , Muon_eta, Muon_phi, Muon_m)"
-tX.add_to_dictionary("Muon_p4", False)
+tX.add_to_dictionary("Muon_p4")
 
 d_source["Muon_iso"]                  =  "Muon_pfRelIso04_all"
-tX.add_to_dictionary("Muon_iso", False)
+tX.add_to_dictionary("Muon_iso")
 
 # Subcollection
 d_source["SelectedMuon"]              =  "Muon_iso < 0.25 && Muon_tightId && Muon_pt > 20. && abs(Muon_eta) < 2.4"
-tX.add_to_dictionary("SelectedMuon", True, "Muon")
+tX.add_to_dictionary("SelectedMuon", "Muon")
 
 
 # Selection
 d_source["twoMuons"]                  =  "nSelectedMuon==2"
-tX.add_to_dictionary("twoMuons", False)
+tX.add_to_dictionary("twoMuons")
 
 # Distinct
 d_source["MuMu"]                      =  "SelectedMuon"
-tX.add_to_dictionary("MuMu_allpairs", True)
-tX.add_to_dictionary("MuMu_ind", True)
-tX.add_to_dictionary("MuMu0", True, "SelectedMuon")
-tX.add_to_dictionary("MuMu1", True, "SelectedMuon")
+tX.add_to_dictionary("MuMu_allpairs")
+tX.add_to_dictionary("MuMu_ind")
+tX.add_to_dictionary("MuMu0", "SelectedMuon")
+tX.add_to_dictionary("MuMu1", "SelectedMuon")
 
 
 
 # Define
 d_source["OppositeSignMuMu"]          =  "Nonzero(MuMu0_charge != MuMu1_charge)"
-tX.add_to_dictionary("OppositeSignMuMu", True)
+tX.add_to_dictionary("OppositeSignMuMu")
 
 # Selection
 d_source["twoOppositeSignMuons"]      =  "OppositeSignMuMu.size() > 0"
-tX.add_to_dictionary("twoOppositeSignMuons", False)
+tX.add_to_dictionary("twoOppositeSignMuons")
 
 # TakePair
 d_source["Mu"]                        =  "At(OppositeSignMuMu,0,-200)"
-tX.add_to_dictionary("Mu_index", False)
-tX.add_to_dictionary("Mu0", False, "MuMu0")
-tX.add_to_dictionary("Mu1", False, "MuMu1")
+tX.add_to_dictionary("Mu_index")
+tX.add_to_dictionary("Mu0", "MuMu0")
+tX.add_to_dictionary("Mu1", "MuMu1")
 
 
 
 # Define
 d_source["Higgs_p4"]                  =  "Mu0_p4+Mu1_p4"
-tX.add_to_dictionary("Higgs_p4", False)
+tX.add_to_dictionary("Higgs_p4")
 
 d_source["Higgs_m"]                   =  "Higgs_p4.M()"
-tX.add_to_dictionary("Higgs_m", False)
+tX.add_to_dictionary("Higgs_m")
 
 d_source["SortedSelectedMuonIndices"] =  "Argsort(-SelectedMuon_pt)"
-tX.add_to_dictionary("SortedSelectedMuonIndices", True)
+tX.add_to_dictionary("SortedSelectedMuonIndices")
 
 
 # ObjectAt
 d_source["LeadMuon"]                  =  "SortedSelectedMuonIndices[0]"
-tX.add_to_dictionary("LeadMuon", False, "SelectedMuon")
+tX.add_to_dictionary("LeadMuon", "SelectedMuon")
 
 d_source["SubMuon"]                   =  "SortedSelectedMuonIndices[1]"
-tX.add_to_dictionary("SubMuon", False, "SelectedMuon")
+tX.add_to_dictionary("SubMuon", "SelectedMuon")
 
 # Selection
 d_source["PreSel"]                    =  "twoOppositeSignMuons && LeadMuon_pt > 26 && SubMuon_pt > 20  && abs(SubMuon_eta) <2.4 && abs(LeadMuon_eta) < 2.4"
-tX.add_to_dictionary("PreSel", False)
+tX.add_to_dictionary("PreSel")
 
 d_source["MassWindow"]                =  "abs(Higgs_m-nominalHMass)<higgsMassWindowWidth"
-tX.add_to_dictionary("MassWindow", False)
+tX.add_to_dictionary("MassWindow")
 
 
 
