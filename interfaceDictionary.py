@@ -274,6 +274,39 @@ class interfaceDictionary:
         
         
 
+    ## Simple merge (according to target format) - no convertion from source to target format #######################
+
+    def merge(self, sVar, sFeat, sInd):
+
+        tVar  = sVar
+        tFeat = ""
+        tInd  = ""
+
+        _has_feature = False
+        _has_index   = False
+
+
+        # FEATURE
+
+        if not sFeat == "NONE":
+            tFeat = sFeat
+            _has_feature = True
+
+        # INDEX
+
+        if not ( (sInd  == "NONE") or (sInd  == "SKIP") ):
+            tInd  = sInd
+            _has_index   = True
+
+
+        typeVar = self.type_if(_has_feature, _has_index)
+            
+        return (self.DB["target_formats"][typeVar].replace(self.VARIABLE_label, tVar).replace(self.INDEX_label, tInd).replace(self.FEATURE_label, tFeat))
+
+
+        
+        
+
 
 
 # Built-in hash() function in Pyton is "salted" by a random mumber (unique per execution)

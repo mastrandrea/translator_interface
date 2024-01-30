@@ -34,6 +34,12 @@ class translator:
         return self.TRANSLATION_ERROR
 
 
+    def addition_error(self, error_text, inputString = "NONE"):
+        print("[",self.name,"] SKIP ADDITION -", error_text)
+        if inputString != "NONE" : print("[",self.name,"] +-->>  ", inputString)        
+        return
+
+
     #---#  Utilities for variables fields identification
 
     def get_token(self, targetString, underscore_allowed = True):
@@ -150,6 +156,7 @@ class translator:
         varIndex    = "NONE"
         sFooter     = ""
 
+        doConvert = True
 
         ### Find first variable (looping over dictionaries' keys)
 
@@ -179,7 +186,9 @@ class translator:
 
             ### Check if the feature found is present in the dictionary of the variable
             if not self.ID.has_this_feature(varName, varFeature):
-                return self.report_error("Feature   "+varFeature+"   not in the dictionary for variable  "+varName, inputString)
+                #                return self.report_error("Feature   "+varFeature+"   not in the dictionary for variable  "+varName, inputString)
+                print("Feature   "+varFeature+"   not in the dictionary for variable  "+varName, inputString)
+                doConvert = False
 
             string_shift += (len(varFeature)+1)
 
@@ -208,10 +217,15 @@ class translator:
 
 
         ###  Build the translated string using the method specific of the loaded interface
-
-        outputString = sHeader+self.ID.convert(varName, varFeature, varIndex)+sFooter
+        if doConvert:
+            outputString = sHeader+self.ID.convert(varName, varFeature, varIndex)+sFooter
+        else:
+            outputString = sHeader+self.ID.merge(varName, varFeature, varIndex)+sFooter
 
         if self.TRANSLATION_ERROR in outputString:     outputString = self.TRANSLATION_ERROR
+
+        print("tttttttttttttttt < ", inputString)
+        print("tttttttttttttttt > ", outputString)
 
 
         return outputString
@@ -222,10 +236,18 @@ class translator:
 
     ##########  Adding new variables and/or features to the db  ###################
     #
-    # TBC: collection and scalar are assumed as baseline for the variables to be added ... index identified, but not used ...
-    # - if index found -> ERROR
-    
+    # Baseline idea: addition to the analysis interface (dictionary) of variables defined during the data manipulation (e.g. event loop).
+    # The name used will be just the one defined, since - by definition - this variable should not be present in the target data ntuple.
+    # (Otherwise this should have been added to the interface definition upstream!)
+    #
+    # Index not searched for!
+    #
+
     def add_to_dictionary(self, inputString, featuresFrom = ""):
+
+
+        print("@@@@@@@@@@@@@@@ add_to_dictionary(", inputString, " , ", featuresFrom, " )")
+
 
         ## If no dictionary is set then skip
 
@@ -235,7 +257,7 @@ class translator:
         ### Single identifier (VARIABLE or VARIABLE_FEATURE) is assumed - INDEX should not be part of the interface definition
 
         if inputString == "":
-            self.report_error("Trying to add empty identifier to the dictionary! ")
+            self.addition_error("Trying to add empty identifier to the dictionary! ")
             return
             
         varName     = "NONE"
@@ -257,12 +279,11 @@ class translator:
         ## Check varFeature and featuresFrom simultaneously != 0 -> issue
 
         if (varFeature != "NONE") and (featuresFrom != ""):
-            self.report_error("Both feature ("+varFeature+")and featuresFrom ("+featuresFrom+") defined for variable "+varName)
+            self.addition_error("Both feature ("+varFeature+")and featuresFrom ("+featuresFrom+") defined for variable "+varName)
             return
 
 
         print("Adding to the dictionary  variable "+varName+" , feature "+varFeature)
-
 
 
         ### Check and update the existing db
@@ -274,7 +295,7 @@ class translator:
             if varFeature != "NONE":
 
                 if self.ID.has_this_feature(varName, varFeature):
-                    self.report_error("Feature "+varFeature+" already defined in the dictionary for variable  "+varName+" !  NO CHANGES to the dictionary! ", inputString)
+                    self.addition_error("Feature "+varFeature+" already defined in the dictionary for variable  "+varName+" !  NO CHANGES to the dictionary! ", inputString)
                     return
 
                 # New feature for an existing variable
@@ -282,7 +303,7 @@ class translator:
 
             # Trying to add a variable with no feature to the db, with the variable already defined in the db -> wrong
             else:
-                self.report_error("Trying to add the "+varName+" variable already defined in the dictionary ", inputString)
+                self.addition_error("Trying to add the "+varName+" variable already defined in the dictionary !  NO CHANGES!", inputString)
                 return
 
 
@@ -298,7 +319,6 @@ class translator:
             elif featuresFrom != "":
                 for f in self.ID.list_of_features_for(featuresFrom):
                     self.ID.add_feature(varName, f)
-
 
         return
 

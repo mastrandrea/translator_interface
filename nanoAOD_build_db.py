@@ -20,6 +20,11 @@ t.set_target_format("vector",     "VARIABLE[INDEX]")
 t.set_target_format("object",     "VARIABLE_FEATURE")
 t.set_target_format("collection", "VARIABLE_FEATURE[INDEX]")
 
+#t.set_target_format("scalar",     "VARIABLE")
+#t.set_target_format("vector",     "VARIABLE[INDEX]")
+#t.set_target_format("object",     "VARIABLE.FEATURE")
+#t.set_target_format("collection", "VARIABLE[INDEX].FEATURE")
+
 
 
 ## Scalar variables (no index, no variables)
