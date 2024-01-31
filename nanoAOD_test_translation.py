@@ -102,7 +102,8 @@ tX.add_to_dictionary("Muon_iso")
 
 # Subcollection
 d_source["SelectedMuon"]              =  "Muon_iso < 0.25 && Muon_tightId && Muon_pt > 20. && abs(Muon_eta) < 2.4"
-tX.add_to_dictionary("SelectedMuon", "Muon")
+tX.add_to_dictionary("SelectedMuon")
+tX.add_features_from("SelectedMuon", "Muon")
 
 
 # Selection
@@ -113,9 +114,10 @@ tX.add_to_dictionary("twoMuons")
 d_source["MuMu"]                      =  "SelectedMuon"
 tX.add_to_dictionary("MuMu_allpairs")
 tX.add_to_dictionary("MuMu_ind")
-tX.add_to_dictionary("MuMu0", "SelectedMuon")
-tX.add_to_dictionary("MuMu1", "SelectedMuon")
-
+tX.add_to_dictionary("MuMu0")
+tX.add_features_from("MuMu0", "SelectedMuon")
+tX.add_to_dictionary("MuMu1")
+tX.add_features_from("MuMu1", "SelectedMuon")
 
 
 # Define
@@ -129,9 +131,11 @@ tX.add_to_dictionary("twoOppositeSignMuons")
 # TakePair
 d_source["Mu"]                        =  "At(OppositeSignMuMu,0,-200)"
 tX.add_to_dictionary("Mu_index")
-tX.add_to_dictionary("Mu0", "MuMu0")
-tX.add_to_dictionary("Mu1", "MuMu1")
-
+tX.add_to_dictionary("Mu0")
+tX.add_features_from("Mu0", "MuMu0")
+tX.add_to_dictionary("Mu1")
+tX.add_features_from("Mu1", "MuMu1")
+    
 
 
 # Define
@@ -147,10 +151,12 @@ tX.add_to_dictionary("SortedSelectedMuonIndices")
 
 # ObjectAt
 d_source["LeadMuon"]                  =  "SortedSelectedMuonIndices[0]"
-tX.add_to_dictionary("LeadMuon", "SelectedMuon")
+tX.add_to_dictionary("LeadMuon")
+tX.add_features_from("LeadMuon", "SelectedMuon")
 
 d_source["SubMuon"]                   =  "SortedSelectedMuonIndices[1]"
-tX.add_to_dictionary("SubMuon", "SelectedMuon")
+tX.add_to_dictionary("SubMuon")
+tX.add_features_from("SubMuon", "SelectedMuon")
 
 # Selection
 d_source["PreSel"]                    =  "twoOppositeSignMuons && LeadMuon_pt > 26 && SubMuon_pt > 20  && abs(SubMuon_eta) <2.4 && abs(LeadMuon_eta) < 2.4"

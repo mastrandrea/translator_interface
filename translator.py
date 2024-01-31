@@ -144,10 +144,14 @@ class translator:
     #
     def translate_string(self, inputString):
 
+        print("tttttttttttttttt < ", inputString)
+
         if not self.do_translate:
+            print("tttttttttttttttt > ", inputString)
             return inputString
         
         if inputString == "":
+            print("tttttttttttttttt > ", inputString)
             return inputString
 
         sHeader     = ""
@@ -166,6 +170,7 @@ class translator:
         ### Exit condition
 
         if varName == "NONE":
+            print("tttttttttttttttt > ", inputString)
             return inputString
 
 
@@ -224,7 +229,7 @@ class translator:
 
         if self.TRANSLATION_ERROR in outputString:     outputString = self.TRANSLATION_ERROR
 
-        print("tttttttttttttttt < ", inputString)
+
         print("tttttttttttttttt > ", outputString)
 
 
@@ -243,10 +248,9 @@ class translator:
     # Index not searched for!
     #
 
-    def add_to_dictionary(self, inputString, featuresFrom = ""):
+    def add_to_dictionary(self, inputString):
 
-
-        print("@@@@@@@@@@@@@@@ add_to_dictionary(", inputString, " , ", featuresFrom, " )")
+        print("@@@@@@@@@@@@@@@ add_to_dictionary(", inputString, " )")
 
 
         ## If no dictionary is set then skip
@@ -274,14 +278,6 @@ class translator:
         string_shift = (varName_pos+len(varName))
 
         varFeature = self.find_feature(inputString[string_shift:])
-
-        ## Check featuresFrom in db
-        ## Check varFeature and featuresFrom simultaneously != 0 -> issue
-
-        if (varFeature != "NONE") and (featuresFrom != ""):
-            self.addition_error("Both feature ("+varFeature+")and featuresFrom ("+featuresFrom+") defined for variable "+varName)
-            return
-
 
         print("Adding to the dictionary  variable "+varName+" , feature "+varFeature)
 
@@ -316,9 +312,33 @@ class translator:
             if varFeature != "NONE":
                 self.ID.add_feature(varName, varFeature)
 
-            elif featuresFrom != "":
-                for f in self.ID.list_of_features_for(featuresFrom):
-                    self.ID.add_feature(varName, f)
+        return
+
+
+
+
+
+    def add_features_from(self, targetVar, sourceVar = ""):
+
+        print("@@@@@@@@@@@@@@@ add_features_from(", targetVar, " , ", sourceVar, " )")
+
+        ## If no dictionary is set then skip
+        if not self.do_translate:
+            return
+
+        # If target variable is not present in the db -> error
+        if not self.ID.is_defined(targetVar):
+            print("ERROR: trying to copy features FOR  a variable not defined in the db : ", targetVar)
+            return
+            
+        # If source variable is not present in the db -> error
+        if not self.ID.is_defined(sourceVar):
+            print("ERROR: trying to copy features FROM a variable not defined in the db : ", sourceVar)
+            return
+            
+        for f in self.ID.list_of_features_for(sourceVar):
+            print("add ", targetVar, "  ", f)
+            self.ID.add_feature(targetVar, f)
 
         return
 
