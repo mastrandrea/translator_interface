@@ -144,14 +144,14 @@ class translator:
     #
     def translate_string(self, inputString):
 
-        print("tttttttttttttttt < ", inputString)
+        #        print("tttttttttttttttt < ", inputString)
 
         if not self.do_translate:
-            print("tttttttttttttttt > ", inputString)
+            #            print("tttttttttttttttt > ", inputString)
             return inputString
         
         if inputString == "":
-            print("tttttttttttttttt > ", inputString)
+            #            print("tttttttttttttttt > ", inputString)
             return inputString
 
         sHeader     = ""
@@ -170,7 +170,7 @@ class translator:
         ### Exit condition
 
         if varName == "NONE":
-            print("tttttttttttttttt > ", inputString)
+            #            print("tttttttttttttttt > ", inputString)
             return inputString
 
 
@@ -225,15 +225,103 @@ class translator:
         if doConvert:
             outputString = sHeader+self.ID.convert(varName, varFeature, varIndex)+sFooter
         else:
-            outputString = sHeader+self.ID.merge(varName, varFeature, varIndex)+sFooter
+            outputString = sHeader+self.ID.merge_with_base_format(varName, varFeature, varIndex)+sFooter
 
         if self.TRANSLATION_ERROR in outputString:     outputString = self.TRANSLATION_ERROR
 
 
-        print("tttttttttttttttt > ", outputString)
+        #        print("tttttttttttttttt > ", outputString)
 
 
         return outputString
+
+
+
+
+
+    ##########  Methods for the extraction of the list of variables (inputs)  ###############################
+    #
+    # 
+    #
+    def get_var_list(self, inputString):
+
+        varList = []
+        
+        if inputString == "":
+            return varList
+
+        sHeader     = ""
+        varName     = "NONE"
+        varFeature  = "NONE"
+        varIndex    = "NONE"
+        sFooter     = ""
+
+
+        ### Find first variable (looping over dictionaries' keys)
+
+        varName, string_shift = self.find_first_var(inputString)
+
+
+        ### Exit condition
+
+        if varName == "NONE":
+            return varList
+
+
+
+        ### Extract the header
+
+        sHeader       = inputString[0:string_shift]
+        string_shift += len(varName)
+
+
+        ### Search for a feature
+
+        varFeature = self.find_feature(inputString[string_shift:])
+
+        if varFeature != "NONE":
+
+            ### Check if the feature found is present in the dictionary of the variable
+            if not self.ID.has_this_feature(varName, varFeature):
+                print("Feature   "+varFeature+"   not in the dictionary for variable  "+varName, inputString)
+
+            string_shift += (len(varFeature)+1)
+
+
+        ### Add found variable to the list
+
+        #        varList = [self.ID.merge_with_target_format(varName, varFeature, "NONE")]
+        varList = [self.ID.convert(varName, varFeature, "NONE")]
+
+
+        ### Search for an index field
+
+        tempIndex = self.find_index(inputString[string_shift:])
+
+        if tempIndex != "NONE":
+
+            if tempIndex == "SKIP":
+                string_shift += 2
+            else:
+                string_shift += (len(tempIndex)+2)
+
+            # Add variables names found in the index field - Recursive application
+            varList += self.get_var_list(tempIndex)
+
+
+
+        ### Select the footer - Recursive application
+
+        varList += self.get_var_list(inputString[string_shift:])
+
+
+
+        ### Remove duplicates
+
+        varList = list(dict.fromkeys(varList))
+
+
+        return varList
 
 
 

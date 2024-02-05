@@ -10,7 +10,7 @@ from translator import translator
 # Test
 ###################################
 
-dbFile = 'nanoAOD_db.json'
+dbFile = 'nanoAOD_db_BB.json'
 
 print("")
 tX = translator(dbFile)
@@ -36,8 +36,8 @@ def test_translate(tX, sTest, targetResult=""):
 
 
 
-#x1 = "Muon_iso < 0.25 && Muon_mediumId && Muon_pt > 20. && abs(Muon_eta) < 2.4"
-#x2 = "Muon[].iso < 0.25 && Muon[].mediumId && Muon[].pt > 20. && abs(Muon[].eta) < 2.4"
+#x1 = "BBMuon_iso < 0.25 && BBMuon_mediumId && BBMuon_pt > 20. && abs(BBMuon_eta) < 2.4"
+#x2 = "BBMuon[].iso < 0.25 && BBMuon[].mediumId && BBMuon[].pt > 20. && abs(BBMuon[].eta) < 2.4"
 #
 #test_translate(tX, x2)
 #
@@ -51,20 +51,20 @@ d_target = {}
 d_source = {}
 
 
-#d_target["base"]  = "Muon_iso < 0.25 && Muon_mediumId && Muon_pt > 20. && abs(Muon_eta) < 2.4"
-#d_source["base"]  = "Muon[].iso < 0.25 && Muon[].mediumId && Muon[].pt > 20. && abs(Muon[].eta) < 2.4"
+#d_target["base"]  = "BBMuon_iso < 0.25 && BBMuon_mediumId && BBMuon_pt > 20. && abs(BBMuon_eta) < 2.4"
+#d_source["base"]  = "BBMuon[].iso < 0.25 && BBMuon[].mediumId && BBMuon[].pt > 20. && abs(BBMuon[].eta) < 2.4"
 #
-#d_target["base1"] = "Muon_iso < 0.25 && Muon_mediumId && Muon_pt > 20. && abs(Muon_eta) < 2.4"
-#d_source["base1"] = "Muon.iso < 0.25 && Muon.mediumId && Muon.pt > 20. && abs(Muon.eta) < 2.4"
+#d_target["base1"] = "BBMuon_iso < 0.25 && BBMuon_mediumId && BBMuon_pt > 20. && abs(BBMuon_eta) < 2.4"
+#d_source["base1"] = "BBMuon.iso < 0.25 && BBMuon.mediumId && BBMuon.pt > 20. && abs(BBMuon.eta) < 2.4"
 
 #test_translate(tX, d_source["base"], d_target["base"])
 
 
 # target ###################################################
 
-d_target["Muon_m"]                    =  "0*Muon_pfRelIso04_all+0.1056f"
-d_target["Muon_p4"]                   =  "vector_map_t<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float> > >(Muon_pt , Muon_eta, Muon_phi, Muon_m)"
-d_target["Muon_iso"]                  =  "Muon_pfRelIso04_all"
+d_target["BBMuon_m"]                  =  "0*Muon_pfRelIso04_all+0.1056f"
+d_target["BBMuon_p4"]                 =  "vector_map_t<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float> > >(Muon_pt , Muon_eta, Muon_phi, Muon_m)"
+d_target["BBMuon_iso"]                =  "Muon_pfRelIso04_all"
 
 d_target["SelectedMuon"]              =  "Muon_iso < 0.25 && Muon_tightId && Muon_pt > 20. && abs(Muon_eta) < 2.4"
 
@@ -93,19 +93,19 @@ d_target["MassWindow"]                =  "abs(Higgs_m-nominalHMass)<higgsMassWin
 # source ###################################################
 
 # Define
-d_source["Muon_m"]                    =  "0*Muon_pfRelIso04_all+0.1056f"
-tX.add_to_dictionary("Muon_m")
+d_source["BBMuon_m"]                    =  "0*BBMuon_pfRelIso04_all+0.1056f"
+tX.add_to_dictionary("BBMuon_m")
 
-d_source["Muon_p4"]                   =  "vector_map_t<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float> > >(Muon_pt , Muon_eta, Muon_phi, Muon_m)"
-tX.add_to_dictionary("Muon_p4")
+d_source["BBMuon_p4"]                   =  "vector_map_t<ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float> > >(BBMuon_pt , BBMuon_eta, BBMuon_phi, BBMuon_m)"
+tX.add_to_dictionary("BBMuon_p4")
 
-d_source["Muon_iso"]                  =  "Muon_pfRelIso04_all"
-tX.add_to_dictionary("Muon_iso")
+d_source["BBMuon_iso"]                  =  "BBMuon_pfRelIso04_all"
+tX.add_to_dictionary("BBMuon_iso")
 
 # Subcollection
-d_source["SelectedMuon"]              =  "Muon_iso < 0.25 && Muon_tightId && Muon_pt > 20. && abs(Muon_eta) < 2.4"
+d_source["SelectedMuon"]              =  "BBMuon_iso < 0.25 && BBMuon_tightId && BBMuon_pt > 20. && abs(BBMuon_eta) < 2.4"
 tX.add_to_dictionary("SelectedMuon")
-tX.add_features_from("SelectedMuon", "Muon")
+tX.add_features_from("SelectedMuon", "BBMuon")
 
 
 # Selection
