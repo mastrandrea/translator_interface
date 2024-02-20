@@ -143,9 +143,9 @@ class interfaceDictionary:
 
 
     def set_format(self, f_type, f_string, side):
-        if   (side != "base" and side != "target"):                                         print("** WRONG side : ", side, "  ('base' or 'target')")
-        elif not f_type in self.types:                                                      print("** WRONG format type set : ", f_type)
-        elif not self.VARIABLE_label in f_string:                                           print("** "+side+" format(", f_string, ") - ERROR : missing ", self.VARIABLE_label, " keyword in the format string.")
+        if   (side != "base" and side != "target"):                                        print("** WRONG side : ", side, "  ('base' or 'target')")
+        elif not f_type in self.types:                                                     print("** WRONG format type set : ", f_type)
+        elif not self.VARIABLE_label in f_string:                                          print("** "+side+" format(", f_string, ") - ERROR : missing ", self.VARIABLE_label, " keyword in the format string.")
         elif (f_type in self.typesWithIndex   and  not self.INDEX_label   in f_string):    print("** "+side+" format(", f_string, ") - ERROR : missing ", self.INDEX_label,    " keyword in the format string.")
         elif (f_type in self.typesWithFeature and  not self.FEATURE_label in f_string):    print("** "+side+" format(", f_string, ") - ERROR : missing ", self.FEATURE_label,  " keyword in the format string.")
         else:
@@ -325,13 +325,11 @@ class interfaceDictionary:
 
 
         # FEATURE
-
         if not _Feat == "NONE":
             tFeat = _Feat
             _has_feature = True
 
         # INDEX
-
         if not ( (_Ind  == "NONE") or (_Ind  == "SKIP") ):
             tInd  = _Ind
             _has_index   = True

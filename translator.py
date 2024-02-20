@@ -338,7 +338,8 @@ class translator:
 
     def add_to_dictionary(self, inputString):
 
-        print("@@@@@@@@@@@@@@@ add_to_dictionary(", inputString, " )")
+#        print("[", self.name,"] add_to_dictionary(", inputString, " )")
+        #print("@@@@@@@@@@@@@@@ add_to_dictionary(", inputString, " )")
 
 
         ## If no dictionary is set then skip
@@ -367,7 +368,7 @@ class translator:
 
         varFeature = self.find_feature(inputString[string_shift:])
 
-        print("Adding to the dictionary  variable "+varName+" , feature "+varFeature)
+        #print("Adding to the dictionary  variable "+varName+" , feature "+varFeature)
 
 
         ### Check and update the existing db
