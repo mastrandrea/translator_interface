@@ -116,7 +116,7 @@ class translator:
 
 
     # This assumes string starting with "_" (NAIL/nanoAOD specific)
-    # If a feature is found, its presence in the variable's dictionary will be checked in the main function
+    # Not searched in the dictionary: if a feature is found, its presence in the variable's dictionary will be checked in the main function
     def find_feature(self, targetString):
         result = "NONE"
 
@@ -135,6 +135,57 @@ class translator:
 
         return result
 
+
+
+
+
+    def split_var_feat(self, varString):
+        varName    = "NONE"
+        varFeature = "NONE"
+
+        ### Find first variable (looping over dictionaries' keys)
+        varName, string_shift = self.find_first_var(varString)
+
+        if varName == "NONE":
+            return varString, varFeature
+
+        string_shift += len(varName)
+
+        ### Search for a feature
+        varFeature = self.find_feature(varString[string_shift:])
+
+        if varFeature != "NONE":
+
+            ### Check if the feature found is present in the dictionary of the variable
+            if not self.ID.has_this_feature(varName, varFeature):
+                print("Feature   "+varFeature+"   not in the dictionary for variable  "+varName, varString)
+
+
+        print("Found  ", varName, "  ++", varFeature, "++")
+
+
+        return varName, varFeature
+
+
+
+
+    def isDefined(self, varString):
+
+        varName, varFeature = self.split_var_feat(varString)
+
+        if not self.ID.is_defined(varName):
+            return False
+
+        if ((not varFeature == 'NONE') and (not self.ID.has_this_feature(varName, varFeature))):
+            return False
+
+        return True
+
+
+
+
+    def listOfFeaturesFor(self, var_name):
+        return self.ID.list_of_features_for(var_name)
 
 
 
@@ -225,7 +276,7 @@ class translator:
         if doConvert:
             outputString = sHeader+self.ID.convert(varName, varFeature, varIndex)+sFooter
         else:
-            outputString = sHeader+self.ID.merge_with_base_format(varName, varFeature, varIndex)+sFooter
+            outputString = sHeader+self.ID.build_with_base_format(varName, varFeature, varIndex)+sFooter
 
         if self.TRANSLATION_ERROR in outputString:     outputString = self.TRANSLATION_ERROR
 
@@ -290,8 +341,10 @@ class translator:
 
         ### Add found variable to the list
 
-        #        varList = [self.ID.merge_with_target_format(varName, varFeature, "NONE")]
-        varList = [self.ID.convert(varName, varFeature, "NONE")]
+        #        #        varList = [self.ID.build_with_target_format(varName, varFeature, "NONE")]
+        #        varList = [self.ID.convert(varName, varFeature, "NONE")]
+
+        varList = [self.ID.build_with_base_format(varName, varFeature, "NONE")]
 
 
         ### Search for an index field

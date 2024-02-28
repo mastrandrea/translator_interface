@@ -169,7 +169,7 @@ class interfaceDictionary:
         return {}
 
 
-
+    # Feature SOURCE name
     def list_of_features_for(self, _var):
         fl = []
         d_var = self.dictionary_for(_var)
@@ -241,80 +241,18 @@ class interfaceDictionary:
 
 
 
-    #    ## Convertion from source to target format ###################################################################
-    #
-    #    def convert(self, sVar, sFeat, sInd):
-    #
-    #        tVar  = self.DB["vars"][sVar][sVar]
-    #        tFeat = ""
-    #        tInd  = ""
-    #
-    #        _has_feature = False
-    #        _has_index   = False
-    #
-    #
-    #        # FEATURE
-    #
-    #        if not sFeat == "NONE":
-    #            tFeat = self.DB["vars"][sVar][sFeat]
-    #            _has_feature = True
-    #
-    #        # INDEX
-    #
-    #        if not ( (sInd  == "NONE") or (sInd  == "SKIP") ):
-    #            tInd  = sInd
-    #            _has_index   = True
-    #
-    #
-    #        typeVar = self.type_if(_has_feature, _has_index)
-    #            
-    #        return (self.DB["target_formats"][typeVar].replace(self.VARIABLE_label, tVar).replace(self.INDEX_label, tInd).replace(self.FEATURE_label, tFeat))
+    ## Build variable name according to specified format (base or target)
 
-
-
-    #    ## Simple merge (according to target format) - no convertion from source to target format #######################
-    #
-    #    def merge(self, sVar, sFeat, sInd):
-    #
-    #        tVar  = sVar
-    #        tFeat = ""
-    #        tInd  = ""
-    #
-    #        _has_feature = False
-    #        _has_index   = False
-    #
-    #
-    #        # FEATURE
-    #
-    #        if not sFeat == "NONE":
-    #            tFeat = sFeat
-    #            _has_feature = True
-    #
-    #        # INDEX
-    #
-    #        if not ( (sInd  == "NONE") or (sInd  == "SKIP") ):
-    #            tInd  = sInd
-    #            _has_index   = True
-    #
-    #
-    #        typeVar = self.type_if(_has_feature, _has_index)
-    #            
-    #        return (self.DB["target_formats"][typeVar].replace(self.VARIABLE_label, tVar).replace(self.INDEX_label, tInd).replace(self.FEATURE_label, tFeat))
-
-
-        
-    ## Simple merge (according to target format) - no convertion from source to target format #######################
-
-    def merge_with_target_format(self, _Var, _Feat, _Ind):
-        return self.merge("target_formats", _Var, _Feat, _Ind)
+    def build_with_target_format(self, _Var, _Feat, _Ind):
+        return self.build("target_formats", _Var, _Feat, _Ind)
         
 
-    def merge_with_base_format(self, _Var, _Feat, _Ind):
-        return self.merge("base_formats", _Var, _Feat, _Ind)
+    def build_with_base_format(self, _Var, _Feat, _Ind):
+        return self.build("base_formats", _Var, _Feat, _Ind)
 
 
 
-    def merge(self, _format, _Var, _Feat, _Ind):
+    def build(self, _format, _Var, _Feat, _Ind):
 
         tVar  = _Var
         tFeat = ""
@@ -349,19 +287,22 @@ class interfaceDictionary:
         tFeat = sFeat
         tInd  = sInd
 
-
         # FEATURE
-        if not sFeat == "NONE":
-            tFeat = self.DB["vars"][sVar][sFeat]
+        if not sFeat == "NONE":    tFeat = self.DB["vars"][sVar][sFeat]
 
-        # INDEX
-        if not ( (sInd  == "NONE") or (sInd  == "SKIP") ):
-            tInd  = sInd
+        #        # INDEX
+        #        if not ( (sInd  == "NONE") or (sInd  == "SKIP") ):
+        #            tInd  = sInd
 
-        return self.merge_with_target_format(tVar, tFeat, tInd)
-
+        return self.build_with_target_format(tVar, tFeat, tInd)
 
 
+
+
+
+##################
+# Notes:
+#
 # Built-in hash() function in Pyton is "salted" by a random mumber (unique per execution)
 # (see: https://docs.python.org/3/reference/datamodel.html#object.__hash__ )
 #    def hash_dict(self):
