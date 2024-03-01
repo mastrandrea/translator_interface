@@ -6,7 +6,7 @@ from interfaceDictionary import interfaceDictionary
 dictionaryFileName = "nanoAOD_db_BB.json"
 
 t = interfaceDictionary("nanoAOD2nanoAOD_test_interface")
-t.set_comments("Test interface for nanoAOD->nanoAOD format translation")
+t.set_comment("Test interface for nanoAOD->nanoAOD format translation")
 
 #t.print_summary()
 
