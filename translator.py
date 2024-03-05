@@ -138,7 +138,7 @@ class translator:
 
 
 
-
+    # This works only for variables (or constants) groups already defined in the dictionary
     def split_var_feat(self, varString):
         varName    = "NONE"
         varFeature = "NONE"
@@ -169,9 +169,7 @@ class translator:
 
 
 
-    def isDefined(self, varString):
-
-        varName, varFeature = self.split_var_feat(varString)
+    def _isDefined(self, varName, varFeature):
 
         if not self.ID.is_defined(varName):
             return False
@@ -180,6 +178,14 @@ class translator:
             return False
 
         return True
+
+
+
+    def isDefined(self, varString):
+
+        varName, varFeature = self.split_var_feat(varString)
+
+        return self._isDefined(varName, varFeature)
 
 
 
@@ -391,7 +397,7 @@ class translator:
 
     def add_to_dictionary(self, inputString):
 
-#        print("[", self.name,"] add_to_dictionary(", inputString, " )")
+        #        print("[", self.name,"] add_to_dictionary(", inputString, " )")
         #print("@@@@@@@@@@@@@@@ add_to_dictionary(", inputString, " )")
 
 
@@ -420,6 +426,7 @@ class translator:
         string_shift = (varName_pos+len(varName))
 
         varFeature = self.find_feature(inputString[string_shift:])
+
 
         #print("Adding to the dictionary  variable "+varName+" , feature "+varFeature)
 
@@ -483,6 +490,60 @@ class translator:
             self.ID.add_feature(targetVar, f)
 
         return
+
+
+
+
+
+
+
+    def add_constant(self, inputString, constValue):
+
+        ## If no dictionary is set then skip
+        if not self.do_translate:
+            return
+
+        if inputString == "":
+            self.addition_error("Trying to add empty identifier to the dictionary! ")
+            return
+ 
+        constPrefix = "NONE"
+        constName   = "NONE"
+
+
+        ### The first token is the constant prefix (same format of a variable name)
+
+        constPrefix, constPrefix_pos = self.get_token(inputString, False)
+
+
+        ### Search for a constName (same format of a var_feature
+
+        string_shift = (constPrefix_pos+len(constPrefix))
+
+        constName = self.find_feature(inputString[string_shift:])
+
+
+        if constPrefix != self.ID.CONSTANT_label:
+            self.addition_error("Trying to add an not-well defined constant to the dictionary !  NO CHANGES to the dictionary! ", inputString)
+            return
+
+        # Trying to add an undefined constant to the db
+        if constName == "NONE":
+            self.addition_error("Trying to add an undefined constant to the dictionary !  NO CHANGES to the dictionary! ", inputString)
+            return
+
+
+
+        ### Check and update the existing db
+
+        # Const group not yet present in the db
+        if not self.ID.is_defined(constPrefix):      self.ID.add_variable(constPrefix)
+
+        self.ID.add_constant(constPrefix, constName, constValue)
+
+
+        return
+
 
 
 #

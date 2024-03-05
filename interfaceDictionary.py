@@ -1,21 +1,38 @@
-##
-##  Rewriting for NAIL/nanoAOD as baseline (source/description) format
-##
-##     variable_feature[index]
-##
-##     - variable CANNOT contain "_"
-##     - feature  can contain multiple "_"
-##     - index is frequently omissed (due to automatic internal loop)
-##     - a token ending with a "(" is a function/method, NOT a variable/feature
-##
-## Types of codification for variables:
-##  - Scalar:     no index, no feature         e.g. RunNumber
-##  - Vector:        INDEX, no feature         e.g. MCweights[i]
-##  - Object:     no index,    FEATURE         e.g. MET_x, MET_y
-##  - Collection:    INDEX,    FEATURE         e.e. electron_pT[i]
-##
-## Translation (i.e. dictionary) is relevant for variables and features *ONLY*
-## - index information managed in the convert method only!
+###################################################################################
+#
+#  Based on NAIL/nanoAOD format (source/description):
+#
+#     Format of a variable: variable_feature[index]   (e.g. Muon_pt or Electron_eta[1])
+#
+#     - variable CANNOT contain "_"
+#     - feature  can contain multiple "_"
+#     - index is frequently omissed (due to automatic internal loop)
+#     - a token ending with a "(" is a function/method, NOT a variable/feature
+#
+#     Types of codification for variables:
+#
+#     - Scalar:     no index, no feature         e.g. RunNumber
+#     - Vector:        INDEX, no feature         e.g. MCweights[i]
+#     - Object:     no index,    FEATURE         e.g. MET_x, MET_y
+#     - Collection:    INDEX,    FEATURE         e.e. electron_pT[i]
+#
+#     Translation (i.e. dictionary) is relevant for variables and features *ONLY*
+#
+#     - index information managed in the convert method only!
+#
+#
+#  Additional features:
+#
+#     Constants: during conversion a constant is translated with its actual value
+#     NOTES: so far the constants are stored in the "vars" dictionary --> this might need to be split in a dedicated dictionary ...
+#
+#     Format of a constant: const_feature   (e.g. const_Muon_mass -> 0.1056f)
+#
+#     - const    identifier (hardcoded to "const" for now) 
+#     - feature  name of the defined constant
+#     - index is not considered
+#
+###################################################################################
 
 import json
 
@@ -28,6 +45,8 @@ class interfaceDictionary:
         self.VARIABLE_label  = "VARIABLE"
         self.FEATURE_label   = "FEATURE"
         self.INDEX_label     = "INDEX"
+
+        self.CONSTANT_label  = "const"
 
         self.scalar_type     = "scalar"
         self.vector_type     = "vector"
@@ -95,6 +114,8 @@ class interfaceDictionary:
         self.info_dictionary["FEATURE_label"]    = self.FEATURE_label
         self.info_dictionary["INDEX_label"]      = self.INDEX_label
 
+        self.info_dictionary["CONSTANT_label"]   = self.CONSTANT_label
+
         self.info_dictionary["scalar_type"]      = self.scalar_type
         self.info_dictionary["vector_type"]      = self.vector_type
         self.info_dictionary["object_type"]      = self.object_type
@@ -122,6 +143,8 @@ class interfaceDictionary:
         self.VARIABLE_label   = id["VARIABLE_label"]
         self.FEATURE_label    = id["FEATURE_label"]
         self.INDEX_label      = id["INDEX_label"]
+
+        self.CONSTANT_label   = id["CONSTANT_label"]
 
         self.scalar_type      = id["scalar_type"]
         self.vector_type      = id["vector_type"]
@@ -216,6 +239,17 @@ class interfaceDictionary:
 
         if feat_target == "": feat_target = feat_origin
         self.DB["vars"][var_origin][feat_origin] = feat_target
+        return
+
+
+
+
+    def add_constant(self, const_prefix, const_name, const_value):
+        if const_prefix != self.CONSTANT_label:
+            print("** ERROR  -  wrong constant prefix  ", const_prefix, "  (expectd  ", self.CONSTANT_label, ")")
+            return
+        
+        self.add_feature(const_prefix, const_name, const_value)
         return
 
 
@@ -358,8 +392,24 @@ class interfaceDictionary:
     ##################################
     # Conversion from source to target format
 
-    def convert(self, sVar, sFeat, sInd):
+    def convert(self, sVar, sFeat, sInd = ""):
 
+        ############
+        # CONSTANT
+        if sVar == self.CONSTANT_label:
+
+            if not self.is_defined(sVar):
+                print("*** ERROR :  NO consant defined")
+                return "CONVERT_ERROR"
+
+            if (not self.has_this_feature(sVar, sFeat)):
+                print("*** ERROR :  constant  ", sFeat, "  is NOT defined! ")
+                return "CONVERT_ERROR"
+
+            return self.DB["vars"][sVar][sFeat]
+
+        ############
+        # VAIABLE
         if not self.is_defined(sVar):
             print("*** ERROR :  variable  ", sVar, "  is NOT defined")
             return "CONVERT_ERROR"
