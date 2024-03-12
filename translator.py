@@ -13,7 +13,7 @@ class translator:
         self.TRANSLATION_ERROR = "__TRANSLATION_ERROR__"
 
         if interfaceDictionaryFile == "NONE" :
-            print("[",self.name,"] ERROR -", " Interface Dictionary File not set! ")
+            print("[",self.name,"] ERROR - Interface Dictionary File not set! ")
             return
 
         if interfaceDictionaryFile == "NO_TRANSLATION" :
@@ -26,7 +26,8 @@ class translator:
 
         
 
-    #---#  Utility for error reporting
+    ##################################
+    #  Utility for error reporting
 
     def report_error(self, error_text, inputString = "NONE"):
         print("[",self.name,"] ERROR -", error_text)
@@ -40,7 +41,26 @@ class translator:
         return
 
 
-    #---#  Utilities for variables fields identification
+
+    ##################################
+    #  Utilities for variables fields identification
+
+    def config_by_dictionary(self, infoObj={}):
+
+        if infoObj == {} :
+            print("[",self.name,"] ERROR - config_by_dictionary mising input dictionary ")
+            return
+
+        self.ID.configure_from_info_dictionary(infoObj)
+        self.do_translate = True
+        return
+
+
+
+
+
+    ##################################
+    #  Utilities for variables fields identification
 
     def get_token(self, targetString, underscore_allowed = True):
 
@@ -128,7 +148,7 @@ class translator:
         if t1_pos != 0:
             self.report_error("Wrong-formed feature filed  "+t1, targetString)
 
-        # Protection against functions!
+        # Protection against function call!
         l = len(t1)
         if (t1 != "") and (targetString[l+1:l+2] != "("):
             result = t1
@@ -195,21 +215,16 @@ class translator:
 
 
 
-    ##########  Methods for the string translation  ###############################
+
+    ##################################
+    #  Methods for the string translation
     #
     # Note: index field is usually not present in case of automatic internal index loop - it is used only for explicit picking (re-definition) of one element of vector/collection
     #
     def translate_string(self, inputString):
 
-        #        print("tttttttttttttttt < ", inputString)
-
-        if not self.do_translate:
-            #            print("tttttttttttttttt > ", inputString)
-            return inputString
-        
-        if inputString == "":
-            #            print("tttttttttttttttt > ", inputString)
-            return inputString
+        if not self.do_translate:       return inputString
+        if inputString == "":           return inputString
 
         sHeader     = ""
         varName     = "NONE"
@@ -227,7 +242,6 @@ class translator:
         ### Exit condition
 
         if varName == "NONE":
-            #            print("tttttttttttttttt > ", inputString)
             return inputString
 
 
@@ -248,7 +262,6 @@ class translator:
 
             ### Check if the feature found is present in the dictionary of the variable
             if not self.ID.has_this_feature(varName, varFeature):
-                #                return self.report_error("Feature   "+varFeature+"   not in the dictionary for variable  "+varName, inputString)
                 print("Feature   "+varFeature+"   not in the dictionary for variable  "+varName, inputString)
                 doConvert = False
 
@@ -262,10 +275,8 @@ class translator:
 
         if tempIndex != "NONE":
 
-            if tempIndex == "SKIP":
-                string_shift += 2
-            else:
-                string_shift += (len(tempIndex)+2)
+            if tempIndex == "SKIP":    string_shift +=  2
+            else:                      string_shift += (2+len(tempIndex))
 
             # Translate index field - Recursive application
             varIndex = self.translate_string(tempIndex)
@@ -287,19 +298,14 @@ class translator:
         if self.TRANSLATION_ERROR in outputString:     outputString = self.TRANSLATION_ERROR
 
 
-        #        print("tttttttttttttttt > ", outputString)
-
-
         return outputString
 
 
 
 
+    ##################################
+    #  Methods for the extraction of the list of variables (inputs)
 
-    ##########  Methods for the extraction of the list of variables (inputs)  ###############################
-    #
-    # 
-    #
     def get_var_list(self, inputString):
 
         varList = []
@@ -347,9 +353,6 @@ class translator:
 
         ### Add found variable to the list
 
-        #        #        varList = [self.ID.build_with_target_format(varName, varFeature, "NONE")]
-        #        varList = [self.ID.convert(varName, varFeature, "NONE")]
-
         varList = [self.ID.build_with_base_format(varName, varFeature, "NONE")]
 
 
@@ -385,8 +388,8 @@ class translator:
 
 
 
-
-    ##########  Adding new variables and/or features to the db  ###################
+    ##################################
+    #  Adding new variables and/or features to the db
     #
     # Baseline idea: addition to the analysis interface (dictionary) of variables defined during the data manipulation (e.g. event loop).
     # The name used will be just the one defined, since - by definition - this variable should not be present in the target data ntuple.
@@ -426,9 +429,6 @@ class translator:
         string_shift = (varName_pos+len(varName))
 
         varFeature = self.find_feature(inputString[string_shift:])
-
-
-        #print("Adding to the dictionary  variable "+varName+" , feature "+varFeature)
 
 
         ### Check and update the existing db
@@ -544,109 +544,3 @@ class translator:
 
         return
 
-
-
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
