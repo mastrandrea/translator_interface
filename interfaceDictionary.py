@@ -25,6 +25,8 @@
 #
 #     - index information managed in the convert method only!
 #
+#     Layout for counter variables (e.g. "nMuon") is hardcoded - for now - in the class initialization (but included in the saved infos)
+#
 #
 #  Additional features:
 #
@@ -44,33 +46,35 @@ import json
 class interfaceDictionary:
     def __init__(self, interfaceName = "", db_file = ""):
 
-        self.name            = interfaceName
-        self.comment         = ""
+        self.name              = interfaceName
+        self.comment           = ""
 
-        self.CONVERSION_ERROR = "CONVERSION_ERROR"
+        self.CONVERSION_ERROR  = "CONVERSION_ERROR"
         
-        self.VARIABLE_label  = "VARIABLE"
-        self.FEATURE_label   = "FEATURE"
-        self.INDEX_label     = "INDEX"
+        self.VARIABLE_label    = "VARIABLE"
+        self.FEATURE_label     = "FEATURE"
+        self.INDEX_label       = "INDEX"
 
-        self.CONSTANT_label  = "const"
+        self.CONSTANT_label    = "const"
 
-        self.scalar_type     = "scalar"
-        self.vector_type     = "vector"
-        self.object_type     = "object"
-        self.collection_type = "collection"
+        self.scalar_type       = "scalar"
+        self.vector_type       = "vector"
+        self.object_type       = "object"
+        self.collection_type   = "collection"
+
+        self.counter_base_layout = 'n'+self.VARIABLE_label
 
         self.types             = (self.scalar_type, self.vector_type, self.object_type, self.collection_type)
         self.typesWithIndex    = (                  self.vector_type,                   self.collection_type)
         self.typesWithFeature  = (                                    self.object_type, self.collection_type)
 
-        self.info_dictionary = {}
+        self.info_dictionary      = {}
 
-        self.DB = {}
+        self.DB                   = {}
 
-        self.DB["base_formats"]     = {}
-        self.DB["target_formats"]   = {}
-        self.DB["vars"]             = {}
+        self.DB["base_formats"]   = {}
+        self.DB["target_formats"] = {}
+        self.DB["vars"]           = {}
 
         self.DB["vars"][self.CONSTANT_label] = {}
 
@@ -78,6 +82,8 @@ class interfaceDictionary:
         for t in self.types:
             self.DB["base_formats"][t]   = self.source_format(t)
             self.DB["target_formats"][t] = "NOT_SET"
+
+        self.DB["counter_base_layout"] = self.counter_base_layout
 
 
         if db_file != "":
@@ -278,6 +284,16 @@ class interfaceDictionary:
         return
 
 
+    ###
+    def get_counter_name_for(self, var_name):
+        return (self.counter_base_layout).replace(self.VARIABLE_label, var_name)
+
+
+    ###
+    def is_counter_defined_for(self, var_name):
+        return self.is_defined(self.get_counter_name_for(var_name))
+    
+    
 
     ##################################
     #  Utilities for DB building
@@ -313,11 +329,13 @@ class interfaceDictionary:
 
         if not self.is_defined(origin_name):
             self.DB["vars"][origin_name] = {origin_name:target_name}
-        else:
-            if target_name != self.DB["vars"][origin_name][origin_name]:
-                from_name = self.DB["vars"][origin_name][origin_name]
-                print(f"{'[ interfaceDictionary ] ERROR add_variable : ' : <45}{' trying to redefine target variable name  '}{from_name}{' / '}{target_name}")
-                return
+
+        # The check in the else field doesn't work when adding features for variable already defined with origin_name != target_name !!!
+        #        else:
+        #            if target_name != self.DB["vars"][origin_name][origin_name]:
+        #                from_name = self.DB["vars"][origin_name][origin_name]
+        #                print(f"{'[ interfaceDictionary ] ERROR add_variable : ' : <45}{' trying to redefine target variable name  '}{from_name}{' / '}{target_name}")
+        #                return
 
         if origin_feat != 'NONE':
             self.add_feature(origin_name, origin_feat, target_feat)
